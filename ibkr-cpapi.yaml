@@ -1,0 +1,144 @@
+openapi: 3.0.0
+info:
+    title: IBKR CPAPI
+    description: Interactive Brokers RESTful API built around the Interactive Brokers Client Portal interface.
+    version: 0.0.1
+  
+servers:
+    -   url: https://localhost:5000/v1/api
+        description: URL designated for the Client Portal Gateway requests.
+    -   url: https://localhost:5000/alpha/api
+        description: "URL designated for the Client Portal Gateway alpha requests.
+        This requires the local bin/run.bat include '-conf conf.api.alpha.yaml' as a java argument.
+        This also requires that conf.api.alpha.yaml is referenced instead of the standard conf.yaml."
+    -   url: https://api.ibkr.com/v1/api
+        description: URL designated for OAuth 1.0A implementations.
+    -   url: https://api.ibkr.com/alpha/api
+        description: URL designated for OAuth 1.0A alpha testing environment. 
+    -   url: https://api.ibkr.com/tv/api
+        description: URL designated for the unique TradingView integration.
+
+paths:
+    /iserver/secdef/search:
+        get:
+            summary: Returns a list of contracts based on symbol.
+            description: Returns a list of contracts based on the search symbol provided as a query param. 
+            parameters:
+                -   in: query
+                    name: symbol
+                    required: true
+                    schema:
+                        type: string
+                        example: AAPL
+                    description: The ticker symbol, bond issuer type, or company name of the equity you are looking to trade.
+                
+                -   in: query
+                    name: secType
+                    required: false
+                    schema:
+                        type: string
+                        default: STK
+                        enum: [STK, IND, BOND]
+                    description: >
+                        Underlying security type:
+                         * `STK` - Represents an underlying as a Stock security type.
+                         * `IND` - Represents an underlying as an Index security type.
+                         * `BOND` - Represents an underlying as a Bond security type.
+                        
+                -   in: query
+                    name: name
+                    required: false
+                    schema:
+                        type: boolean
+                    description: Denotes if the symbol value is the ticker symbol or part of the company's name. 
+            responses:
+                '200':
+                    description: An array of objects detailing contract information.
+                    content: 
+                        application/json:
+                            schema:
+                                type: array
+                                items: 
+                                    anyOf:
+                                        - type: string
+                                        - type: boolean
+                                        - type: array
+######## NEED TO FIGURE OUT ARRAYS!!!!!!!!! ############                                        
+                                example:
+                                    name: conid
+                                        type: string
+                                        example: 265598
+                                    companyHeader:
+                                        type: string
+                                        example: APPLE INC - NASDAQ
+                                    companyName:
+                                        type: string
+                                        example: APPLE INC
+                                    symbol:
+                                        type: string
+                                        example: AAPL
+                                    description:
+                                        type: string
+                                        example: NASDAQ
+                                    restricted:
+                                        type: boolean
+                                    fop:
+                                        type: string
+                                        example: 20240105;20240112;20240119;20240126
+                                    opt:
+                                        type: string
+                                        example: 20240105;20240112;20240119;20240126
+                                    war:
+                                        type: string
+                                        example: 20240105;20240112;20240119;20240126
+                                    sections:
+                                        type: array
+                                        properties:
+                                            type: object
+                                            properties:
+                                                secType:
+                                                    type: string
+                                                    example: OPT
+                                                months:
+                                                    type: string
+                                                    example: NOV23;DEC23;JAN24
+                                                exchange:
+                                                    type: string
+                                                    example: SMART;AMEX;BATS;BOX
+
+        post:
+            summary: Returns a list of contracts based on symbol.
+            description: Returns a list of contracts based on the search symbol provided as a query param. 
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                    
+                    
+                -   in: query
+                    name: symbol
+                    required: true
+                    schema:
+                        type: string
+                        example: AAPL
+                    description: The ticker symbol, bond issuer type, or company name of the equity you are looking to trade.
+                
+                -   in: query
+                    name: secType
+                    required: false
+                    schema:
+                        type: string
+                        default: STK
+                        enum: [STK, IND, BOND]
+                    description: >
+                        Underlying security type:
+                         * `STK` - Represents an underlying as a Stock security type.
+                         * `IND` - Represents an underlying as an Index security type.
+                         * `BOND` - Represents an underlying as a Bond security type.
+                        
+                -   in: query
+                    name: name
+                    required: false
+                    schema:
+                        type: boolean
+                    description: Denotes if the symbol value is the ticker symbol or part of the company's name. 
