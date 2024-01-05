@@ -21,6 +21,8 @@ servers:
 paths:
     /iserver/secdef/search:
         get:
+            tags: 
+              - Contracts
             summary: Returns a list of contracts based on symbol.
             description: Returns a list of contracts based on the search symbol provided as a query param. 
             parameters:
@@ -31,7 +33,6 @@ paths:
                         type: string
                         example: AAPL
                     description: The ticker symbol, bond issuer type, or company name of the equity you are looking to trade.
-                
                 -   in: query
                     name: secType
                     required: false
@@ -44,7 +45,6 @@ paths:
                          * `STK` - Represents an underlying as a Stock security type.
                          * `IND` - Represents an underlying as an Index security type.
                          * `BOND` - Represents an underlying as a Bond security type.
-                        
                 -   in: query
                     name: name
                     required: false
@@ -61,42 +61,47 @@ paths:
                             uniqueItems: true
                             items:
                               $ref: '#/components/schemas/secdefSearch'
+
         post:
+            tags: 
+              - Contracts
             summary: Returns a list of contracts based on symbol.
             description: Returns a list of contracts based on the search symbol provided as a query param. 
             requestBody:
                 required: true
                 content:
                     application/json:
-                    
-                    
-                -   in: query
-                    name: symbol
-                    required: true
-                    schema:
-                        type: string
-                        example: AAPL
-                    description: The ticker symbol, bond issuer type, or company name of the equity you are looking to trade.
-                
-                -   in: query
-                    name: secType
-                    required: false
-                    schema:
-                        type: string
-                        default: STK
-                        enum: [STK, IND, BOND]
-                    description: >
-                        Underlying security type:
-                         * `STK` - Represents an underlying as a Stock security type.
-                         * `IND` - Represents an underlying as an Index security type.
-                         * `BOND` - Represents an underlying as a Bond security type.
-                        
-                -   in: query
-                    name: name
-                    required: false
-                    schema:
-                        type: boolean
-                    description: Denotes if the symbol value is the ticker symbol or part of the company's name. 
+                        schema:
+                            type: object
+                            properties:
+                              symbol:
+                                type: string
+                                example: AAPL
+                                description: The ticker symbol, bond issuer type, or company name of the equity you are looking to trade.
+                              secType:
+                                  type: string
+                                  default: STK
+                                  enum: [STK, IND, BOND]
+                                  description: >
+                                      Underlying security type:
+                                       * `STK` - Represents an underlying as a Stock security type.
+                                       * `IND` - Represents an underlying as an Index security type.
+                                       * `BOND` - Represents an underlying as a Bond security type.
+                              name:
+                                  type: boolean
+                                  description: Denotes if the symbol value is the ticker symbol or part of the company's name.
+                            required:
+                              - symbol
+            responses:
+                '200':
+                    description: An array of objects detailing contract information.
+                    content: 
+                        application/json:
+                          schema:
+                            type: array
+                            uniqueItems: true
+                            items:
+                              $ref: '#/components/schemas/secdefSearch'
 
 components:
   schemas:
@@ -105,29 +110,38 @@ components:
         conid:
             type: string
             example: 265598
+            description: Contract identifier for the unique contract.
         companyHeader:
             type: string
             example: APPLE INC - NASDAQ
+            description: Company Name - Exchange
         companyName:
             type: string
             example: APPLE INC
+            description: Formal name of the company.
         symbol:
             type: string
             example: AAPL
+            description: Underlying ticker symbol.
         description:
             type: string
             example: NASDAQ
+            description: Primary exchange of the contract
         restricted:
             type: boolean
+            description: Returns if the contract is available for trading.
         fop:
             type: string
             example: 20240105;20240112;20240119;20240126
+            description: Returns a string of dates, separated by semicolons.
         opt:
             type: string
             example: 20240105;20240112;20240119;20240126
+            description: Returns a string of dates, separated by semicolons.
         war:
             type: string
             example: 20240105;20240112;20240119;20240126
+            description: Returns a string of dates, separated by semicolons.
         sections:
           type: array
           uniqueItems: true
