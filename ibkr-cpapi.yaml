@@ -57,7 +57,10 @@ paths:
                     content: 
                         application/json:
                           schema:
-                            $ref: '#/components/schemas/secdefSearch'
+                            type: array
+                            uniqueItems: true
+                            items:
+                              $ref: '#/components/schemas/secdefSearch'
         post:
             summary: Returns a list of contracts based on symbol.
             description: Returns a list of contracts based on the search symbol provided as a query param. 
@@ -126,6 +129,10 @@ components:
             type: string
             example: 20240105;20240112;20240119;20240126
         sections:
+          type: array
+          uniqueItems: true
+          items:
+            type: object
             properties:
               secType:
                   type: string
