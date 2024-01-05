@@ -56,56 +56,8 @@ paths:
                     description: An array of objects detailing contract information.
                     content: 
                         application/json:
-                            schema:
-                                type: array
-                                items: 
-                                    anyOf:
-                                        - type: string
-                                        - type: boolean
-                                        - type: array
-######## NEED TO FIGURE OUT ARRAYS!!!!!!!!! ############                                        
-                                example:
-                                    name: conid
-                                        type: string
-                                        example: 265598
-                                    companyHeader:
-                                        type: string
-                                        example: APPLE INC - NASDAQ
-                                    companyName:
-                                        type: string
-                                        example: APPLE INC
-                                    symbol:
-                                        type: string
-                                        example: AAPL
-                                    description:
-                                        type: string
-                                        example: NASDAQ
-                                    restricted:
-                                        type: boolean
-                                    fop:
-                                        type: string
-                                        example: 20240105;20240112;20240119;20240126
-                                    opt:
-                                        type: string
-                                        example: 20240105;20240112;20240119;20240126
-                                    war:
-                                        type: string
-                                        example: 20240105;20240112;20240119;20240126
-                                    sections:
-                                        type: array
-                                        properties:
-                                            type: object
-                                            properties:
-                                                secType:
-                                                    type: string
-                                                    example: OPT
-                                                months:
-                                                    type: string
-                                                    example: NOV23;DEC23;JAN24
-                                                exchange:
-                                                    type: string
-                                                    example: SMART;AMEX;BATS;BOX
-
+                          schema:
+                            $ref: '#/components/schemas/secdefSearch'
         post:
             summary: Returns a list of contracts based on symbol.
             description: Returns a list of contracts based on the search symbol provided as a query param. 
@@ -142,3 +94,45 @@ paths:
                     schema:
                         type: boolean
                     description: Denotes if the symbol value is the ticker symbol or part of the company's name. 
+
+components:
+  schemas:
+    secdefSearch:
+      properties:
+        conid:
+            type: string
+            example: 265598
+        companyHeader:
+            type: string
+            example: APPLE INC - NASDAQ
+        companyName:
+            type: string
+            example: APPLE INC
+        symbol:
+            type: string
+            example: AAPL
+        description:
+            type: string
+            example: NASDAQ
+        restricted:
+            type: boolean
+        fop:
+            type: string
+            example: 20240105;20240112;20240119;20240126
+        opt:
+            type: string
+            example: 20240105;20240112;20240119;20240126
+        war:
+            type: string
+            example: 20240105;20240112;20240119;20240126
+        sections:
+            properties:
+              secType:
+                  type: string
+                  example: OPT
+              months:
+                  type: string
+                  example: NOV23;DEC23;JAN24
+              exchange:
+                  type: string
+                  example: SMART;AMEX;BATS;BOX
