@@ -35,16 +35,16 @@ paths:
       name: symbol
       required: true
       schema:
-      type: string
-      example: AAPL
-      description: The ticker symbol, bond issuer type, or company name of the equity you are looking to trade.
+        type: string
+        example: AAPL
+        description: The ticker symbol, bond issuer type, or company name of the equity you are looking to trade.
     - in: query
       name: secType
       required: false
       schema:
-      type: string
-      default: STK
-      enum: [STK, IND, BOND]
+        type: string
+        default: STK
+        enum: [STK, IND, BOND]
       # Bullet points are indicated by the original indent, a space, the asterisk, then another space. 
       # The back tick formats the topic, while information after the hyphen denotes description.
       description: >
@@ -56,18 +56,18 @@ paths:
       name: name
       required: false
       schema:
-      type: boolean
-      description: Denotes if the symbol value is the ticker symbol or part of the company's name. 
+        type: boolean
+        description: Denotes if the symbol value is the ticker symbol or part of the company's name. 
     responses:
-    '200':
-      description: An array of objects detailing contract information.
-      content: 
-      application/json:
-        schema:
-        type: array
-        uniqueItems: true
-        items:
-        $ref: '#/components/schemas/secdefSearch'
+      '200':
+        description: An array of objects detailing contract information.
+        content: 
+        application/json:
+          schema:
+            type: array
+            uniqueItems: true
+            items:
+            $ref: '#/components/schemas/secdefSearch'
 
   post:
     tags: 
@@ -100,68 +100,68 @@ paths:
         required:
         - symbol
     responses:
-    '200':
-      description: An array of objects detailing contract information.
-      content: 
-      application/json:
-        schema:
-        type: array
-        uniqueItems: true
-        items:
-        $ref: '#/components/schemas/secdefSearch'
+      '200':
+        description: An array of objects detailing contract information.
+        content: 
+        application/json:
+          schema:
+            type: array
+            uniqueItems: true
+            items:
+            $ref: '#/components/schemas/secdefSearch'
 
   # /iserver/account/allocation/group
 components:
   schemas:
-  secdefSearch:
-  properties:
-  conid:
-    type: string
-    example: 265598
-    description: Contract identifier for the unique contract.
-  companyHeader:
-    type: string
-    example: APPLE INC - NASDAQ
-    description: Company Name - Exchange
-  companyName:
-    type: string
-    example: APPLE INC
-    description: Formal name of the company.
-  symbol:
-    type: string
-    example: AAPL
-    description: Underlying ticker symbol.
-  description:
-    type: string
-    example: NASDAQ
-    description: Primary exchange of the contract
-  restricted:
-    type: boolean
-    description: Returns if the contract is available for trading.
-  fop:
-    type: string
-    example: 20240105;20240112;20240119;20240126
-    description: Returns a string of dates, separated by semicolons.
-  opt:
-    type: string
-    example: 20240105;20240112;20240119;20240126
-    description: Returns a string of dates, separated by semicolons.
-  war:
-    type: string
-    example: 20240105;20240112;20240119;20240126
-    description: Returns a string of dates, separated by semicolons.
-  sections:
-    type: array
-    uniqueItems: true
-    items:
-      type: object
+    secdefSearch:
       properties:
-      secType:
+      conid:
         type: string
-        example: OPT
-      months:
+        example: 265598
+        description: Contract identifier for the unique contract.
+      companyHeader:
         type: string
-        example: NOV23;DEC23;JAN24
-      exchange:
+        example: APPLE INC - NASDAQ
+        description: Company Name - Exchange
+      companyName:
         type: string
-        example: SMART;AMEX;BATS;BOX
+        example: APPLE INC
+        description: Formal name of the company.
+      symbol:
+        type: string
+        example: AAPL
+        description: Underlying ticker symbol.
+      description:
+        type: string
+        example: NASDAQ
+        description: Primary exchange of the contract
+      restricted:
+        type: boolean
+        description: Returns if the contract is available for trading.
+      fop:
+        type: string
+        example: 20240105;20240112;20240119;20240126
+        description: Returns a string of dates, separated by semicolons.
+      opt:
+        type: string
+        example: 20240105;20240112;20240119;20240126
+        description: Returns a string of dates, separated by semicolons.
+      war:
+        type: string
+        example: 20240105;20240112;20240119;20240126
+        description: Returns a string of dates, separated by semicolons.
+      sections:
+        type: array
+        uniqueItems: true
+        items:
+          type: object
+          properties:
+          secType:
+            type: string
+            example: OPT
+          months:
+            type: string
+            example: NOV23;DEC23;JAN24
+          exchange:
+            type: string
+            example: SMART;AMEX;BATS;BOX
