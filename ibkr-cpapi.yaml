@@ -109,6 +109,66 @@ paths:
                 items:
                   $ref: '#/components/schemas/secdefSearch'
 
+  /iserver/watchlist:
+    post:
+      tags: 
+        - Watchlists
+      summary: Create a watchlist to monitor a set of instruments.
+      description: Create a named watchlist by submitting a set of conids. 
+      requestBody:
+        description: Watchlist contents.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Must be a number, digits 0-9 only. Must be unique relative to other watchlist IDs.
+                name:
+                  type: string
+                  description: Arbitrary human-readable name to be displayed in TWS and Client Portal.
+                rows:
+                  type: array
+                  description: Array of JSON objects corresponding to watchlist rows, one per instruments.
+                  uniqueItems: true
+                  items:
+                    properties:
+                      C:
+                        type: string
+                        description: Conid as string. 
+              required:
+                - id
+                - name
+                - rows
+      responses:
+        '200':
+          description: Watchlist creation successful.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: The submitted watchlist ID.
+                  hash:
+                    type: string
+                    description: IB's internal hash of the submitted watchlist.
+                  name:
+                    type: string
+                    description: The submitted human-readable watchlist name.
+                  readOnly:
+                    type: boolean
+                    description: Indicates whether watchlist is write-restricted. User-created watchlists will always show false.
+                  instruments:
+                    type: array
+                    description: Array will always be empty. Contents can be queried via GET /iserver/watchlist?id=
+                    items:
+                      type: string
+                    maxItems: 0
+
   # /iserver/account/allocation/group
 components:
   schemas:
