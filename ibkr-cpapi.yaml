@@ -23,55 +23,53 @@ servers:
 paths:
   # Initial test to confirm behavior of request strucures.
   /iserver/secdef/search:
-  get:
-    # Tags allow us to categorize requests, as shown in REDOC directly.
-    tags:
-    - Contracts
-    summary: Returns a list of contracts based on symbol.
-    description: Returns a list of contracts based on the search symbol provided as a query param. 
-    parameters:
-    # Specify param type, including query, path, or body params.
-    - in: query
-      name: symbol
-      required: true
-      schema:
-        type: string
-        example: AAPL
-        description: The ticker symbol, bond issuer type, or company name of the equity you are looking to trade.
-    - in: query
-      name: secType
-      required: false
-      schema:
-        type: string
-        default: STK
-        enum: [STK, IND, BOND]
-      # Bullet points are indicated by the original indent, a space, the asterisk, then another space. 
-      # The back tick formats the topic, while information after the hyphen denotes description.
-      description: >
-        Underlying security type:
-        * `STK` - Represents an underlying as a Stock security type.
-        * `IND` - Represents an underlying as an Index security type.
-        * `BOND` - Represents an underlying as a Bond security type.
-    - in: query
-      name: name
-      required: false
-      schema:
-        type: boolean
-        description: Denotes if the symbol value is the ticker symbol or part of the company's name. 
-    responses:
-      '200':
-        description: An array of objects detailing contract information.
-        content: 
-        application/json:
-          schema:
-            type: array
-            uniqueItems: true
-            items:
-            $ref: '#/components/schemas/secdefSearch'
+    get:
+      # Tags allow us to categorize requests, as shown in REDOC directly.
+      tags:
+      - Contracts
+      summary: Returns a list of contracts based on symbol.
+      description: Returns a list of contracts based on the search symbol provided as a query param. 
+      parameters:
+      # Specify param type, including query, path, or body params.
+      - in: query
+        name: symbol
+        required: true
+        schema:
+          type: string
+          example: AAPL
+          description: The ticker symbol, bond issuer type, or company name of the equity you are looking to trade.
+      - in: query
+        name: secType
+        required: false
+        schema:
+          type: string
+          default: STK
+          enum: [STK, IND, BOND]
+        # Bullet points are indicated by the original indent, a space, the asterisk, then another space. 
+        # The back tick formats the topic, while information after the hyphen denotes description.
+        description: >
+          Underlying security type:
+          * `STK` - Represents an underlying as a Stock security type.
+          * `IND` - Represents an underlying as an Index security type.
+          * `BOND` - Represents an underlying as a Bond security type.
+      - in: query
+        name: name
+        required: false
+        schema:
+          type: boolean
+          description: Denotes if the symbol value is the ticker symbol or part of the company's name. 
+      responses:
+        '200':
+          description: An array of objects detailing contract information.
+          content: 
+          application/json:
+            schema:
+              type: array
+              uniqueItems: true
+              items:
+              $ref: '#/components/schemas/secdefSearch'
 
   post:
-    tags: 
-    - Contracts
     summary: Returns a list of contracts based on symbol.
     description: Returns a list of contracts based on the search symbol provided as a query param. 
     requestBody:
