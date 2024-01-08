@@ -169,7 +169,123 @@ paths:
                       type: string
                     maxItems: 0
 
-  # /iserver/account/allocation/group
+  /iserver/account/allocation/group:
+    get:
+      tags:
+        - FA Allocation Management
+      summary: List All Allocation Groups
+      description: Retrieves a list of all of the advisor’s allocation groups. This describes the name of the allocation group, number of subaccounts within the group, and the method in use for the group.
+      responses:
+        '200':
+          description: Returns the "data" array, which contains all allocation groups under the advisor account.
+          content: 
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      properties:
+                        allocation_method:
+                          type: string
+                          example: "N"
+                          description: Uses the Allocation Method Code to represent which method is implemented.
+                        size:
+                          type: integer
+                          example: 10
+                          description: Represents the total number of sub-accounts within the group.
+                        name: 
+                          type: string
+                          example: Group_1_NetLiq
+                          description: The name set for the given allocation group.
+    put:
+      tags:
+        - FA Allocation Management
+      summary: Modify Allocation Group
+      description: Modify an existing allocation group.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Group_1_NetLiq
+                  description: Name used to refer to your allocation group. If prev_name is specified, this will become the new name of the group.
+                prev_name:
+                  type: string
+                  example: Group_0_NetLiq
+                  description: Can be used to rename a group. Using this field will recognize the previous name, while the "name" filed will mark the updated name.
+                accounts:
+                  type: array
+                  description: Denotes if the symbol value is the ticker symbol or part of the company's name.
+                  items:
+                    properties:
+                      name:
+                        type: string
+                        description: The accountId of a given sub-account.
+                        example: "U1234567"
+                      amount:
+                        type: integer
+                        description: The total distribution value for each sub-account for user-defined allocation methods.
+                        example: 10
+                    required:
+                      - name
+                      - amount
+                default_method:
+                  type: string
+                  default: "N"
+                  enum: [A, E, "N", C, P, R, S]
+                  description: >
+                    IB-computed allocation methods:
+                      * `A` - Available Equity
+                      * `E` - Equal
+                      * `N` - Net Liquidation Value
+                    
+                    User-specified allocation methods:
+                      * `C` - Cash Quantity
+                      * `P` - Percentage
+                      * `R` - Ratios
+                      * `S` - Shares
+              required:
+                - name
+                - accounts
+                - default_method
+            examples:
+              NetLiq:
+                value: 
+                  name: Group_1_NetLiq
+                  # amount: 15
+                  default_method: "N"
+              EqualQty:
+                value: 
+                  name: Group_1_Equal
+                  # amount: 15
+                  default_method: "E"
+              Shares:
+                value: 
+                  name: Group_1_Shares
+                  previous_name: Group_0_Shares
+                  amount: 15
+                  default_method: "S"
+                  accounts:
+                    name: "U456789"
+                    amount: 3
+      responses:
+        '200':
+          description: Returns a confirmation that the modification was successful.
+          content: 
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+
+
+    # post:
+
 components:
   schemas:
     secdefSearch:
