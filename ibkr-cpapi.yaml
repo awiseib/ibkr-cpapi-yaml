@@ -47,10 +47,10 @@ paths:
         # Bullet points are indicated by the original indent, a space, the asterisk, then another space. 
         # The back tick formats the topic, while information after the hyphen denotes description.
         description: >
-          Underlying security type:
-          * `STK` - Represents an underlying as a Stock security type.
-          * `IND` - Represents an underlying as an Index security type.
-          * `BOND` - Represents an underlying as a Bond security type.
+          Available underlying security types:
+            * `STK` - Represents an underlying as a Stock security type.
+            * `IND` - Represents an underlying as an Index security type.
+            * `BOND` - Represents an underlying as a Bond security type.
       - in: query
         name: name
         required: false
@@ -69,6 +69,8 @@ paths:
                   $ref: '#/components/schemas/secdefSearch'
 
     post:
+      tags:
+      - Contracts
       summary: Returns a list of contracts based on symbol.
       description: Returns a list of contracts based on the search symbol provided as a query param. 
       requestBody:
@@ -87,10 +89,10 @@ paths:
                   default: STK
                   enum: [STK, IND, BOND]
                   description: >
-                    Underlying security type:
-                    * `STK` - Represents an underlying as a Stock security type.
-                    * `IND` - Represents an underlying as an Index security type.
-                    * `BOND` - Represents an underlying as a Bond security type.
+                    Available underlying security types:
+                      * `STK` - Represents an underlying as a Stock security type.
+                      * `IND` - Represents an underlying as an Index security type.
+                      * `BOND` - Represents an underlying as a Bond security type.
                 name:
                   type: boolean
                   description: Denotes if the symbol value is the ticker symbol or part of the company's name.
