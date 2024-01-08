@@ -1,159 +1,167 @@
 openapi: 3.0.0
 info:
-    title: IBKR CPAPI
-    description: Interactive Brokers RESTful API built around the Interactive Brokers Client Portal interface.
-    version: 0.0.1
+  title: IBKR CPAPI
+  description: Interactive Brokers RESTful API built around the Interactive Brokers Client Portal interface.
+  version: 0.0.1
   
 servers:
-    -   url: https://localhost:5000/v1/api
-        description: URL designated for the Client Portal Gateway requests.
-    -   url: https://localhost:5000/alpha/api
-        description: "URL designated for the Client Portal Gateway alpha requests.
-        This requires the local bin/run.bat include '-conf conf.api.alpha.yaml' as a java argument.
-        This also requires that conf.api.alpha.yaml is referenced instead of the standard conf.yaml."
-    -   url: https://api.ibkr.com/v1/api
-        description: URL designated for OAuth 1.0A implementations.
-    -   url: https://api.ibkr.com/alpha/api
-        description: URL designated for OAuth 1.0A alpha testing environment. 
-    -   url: https://api.ibkr.com/tv/api
-        description: URL designated for the unique TradingView integration.
+  # After hyphen, underlying descriptions should be equally indented to same level of indentation.
+  - url: https://localhost:5000/v1/api
+    description: URL designated for the Client Portal Gateway requests.
+  - url: https://localhost:5000/alpha/api
+    description: >
+      URL designated for the Client Portal Gateway alpha requests.
+      This requires the local bin/run.bat include '-conf conf.api.alpha.yaml' as a java argument.
+      This also requires that conf.api.alpha.yaml is referenced instead of the standard conf.yaml.
+  - url: https://api.ibkr.com/v1/api
+    description: URL designated for OAuth 1.0A implementations.
+  - url: https://api.ibkr.com/alpha/api
+    description: URL designated for OAuth 1.0A alpha testing environment. 
+  - url: https://api.ibkr.com/tv/api
+    description: URL designated for the unique TradingView integration.
 
 paths:
-    /iserver/secdef/search:
-        get:
-            tags: 
-              - Contracts
-            summary: Returns a list of contracts based on symbol.
-            description: Returns a list of contracts based on the search symbol provided as a query param. 
-            parameters:
-                -   in: query
-                    name: symbol
-                    required: true
-                    schema:
-                        type: string
-                        example: AAPL
-                    description: The ticker symbol, bond issuer type, or company name of the equity you are looking to trade.
-                -   in: query
-                    name: secType
-                    required: false
-                    schema:
-                        type: string
-                        default: STK
-                        enum: [STK, IND, BOND]
-                    description: >
-                        Underlying security type:
-                         * `STK` - Represents an underlying as a Stock security type.
-                         * `IND` - Represents an underlying as an Index security type.
-                         * `BOND` - Represents an underlying as a Bond security type.
-                -   in: query
-                    name: name
-                    required: false
-                    schema:
-                        type: boolean
-                    description: Denotes if the symbol value is the ticker symbol or part of the company's name. 
-            responses:
-                '200':
-                    description: An array of objects detailing contract information.
-                    content: 
-                        application/json:
-                          schema:
-                            type: array
-                            uniqueItems: true
-                            items:
-                              $ref: '#/components/schemas/secdefSearch'
+  # Initial test to confirm behavior of request strucures.
+  /iserver/secdef/search:
+  get:
+    # Tags allow us to categorize requests, as shown in REDOC directly.
+    tags:
+    - Contracts
+    summary: Returns a list of contracts based on symbol.
+    description: Returns a list of contracts based on the search symbol provided as a query param. 
+    parameters:
+    # Specify param type, including query, path, or body params.
+    - in: query
+      name: symbol
+      required: true
+      schema:
+      type: string
+      example: AAPL
+      description: The ticker symbol, bond issuer type, or company name of the equity you are looking to trade.
+    - in: query
+      name: secType
+      required: false
+      schema:
+      type: string
+      default: STK
+      enum: [STK, IND, BOND]
+      # Bullet points are indicated by the original indent, a space, the asterisk, then another space. 
+      # The back tick formats the topic, while information after the hyphen denotes description.
+      description: >
+        Underlying security type:
+        * `STK` - Represents an underlying as a Stock security type.
+        * `IND` - Represents an underlying as an Index security type.
+        * `BOND` - Represents an underlying as a Bond security type.
+    - in: query
+      name: name
+      required: false
+      schema:
+      type: boolean
+      description: Denotes if the symbol value is the ticker symbol or part of the company's name. 
+    responses:
+    '200':
+      description: An array of objects detailing contract information.
+      content: 
+      application/json:
+        schema:
+        type: array
+        uniqueItems: true
+        items:
+        $ref: '#/components/schemas/secdefSearch'
 
-        post:
-            tags: 
-              - Contracts
-            summary: Returns a list of contracts based on symbol.
-            description: Returns a list of contracts based on the search symbol provided as a query param. 
-            requestBody:
-                required: true
-                content:
-                    application/json:
-                        schema:
-                            type: object
-                            properties:
-                              symbol:
-                                type: string
-                                example: AAPL
-                                description: The ticker symbol, bond issuer type, or company name of the equity you are looking to trade.
-                              secType:
-                                  type: string
-                                  default: STK
-                                  enum: [STK, IND, BOND]
-                                  description: >
-                                      Underlying security type:
-                                       * `STK` - Represents an underlying as a Stock security type.
-                                       * `IND` - Represents an underlying as an Index security type.
-                                       * `BOND` - Represents an underlying as a Bond security type.
-                              name:
-                                  type: boolean
-                                  description: Denotes if the symbol value is the ticker symbol or part of the company's name.
-                            required:
-                              - symbol
-            responses:
-                '200':
-                    description: An array of objects detailing contract information.
-                    content: 
-                        application/json:
-                          schema:
-                            type: array
-                            uniqueItems: true
-                            items:
-                              $ref: '#/components/schemas/secdefSearch'
+  post:
+    tags: 
+    - Contracts
+    summary: Returns a list of contracts based on symbol.
+    description: Returns a list of contracts based on the search symbol provided as a query param. 
+    requestBody:
+    required: true
+    content:
+      application/json:
+      schema:
+        type: object
+        properties:
+        symbol:
+          type: string
+          example: AAPL
+          description: The ticker symbol, bond issuer type, or company name of the equity you are looking to trade.
+          secType:
+            type: string
+            default: STK
+            enum: [STK, IND, BOND]
+            description: >
+              Underlying security type:
+              * `STK` - Represents an underlying as a Stock security type.
+              * `IND` - Represents an underlying as an Index security type.
+              * `BOND` - Represents an underlying as a Bond security type.
+        name:
+          type: boolean
+          description: Denotes if the symbol value is the ticker symbol or part of the company's name.
+        required:
+        - symbol
+    responses:
+    '200':
+      description: An array of objects detailing contract information.
+      content: 
+      application/json:
+        schema:
+        type: array
+        uniqueItems: true
+        items:
+        $ref: '#/components/schemas/secdefSearch'
 
+  # /iserver/account/allocation/group
 components:
   schemas:
-    secdefSearch:
+  secdefSearch:
+  properties:
+  conid:
+    type: string
+    example: 265598
+    description: Contract identifier for the unique contract.
+  companyHeader:
+    type: string
+    example: APPLE INC - NASDAQ
+    description: Company Name - Exchange
+  companyName:
+    type: string
+    example: APPLE INC
+    description: Formal name of the company.
+  symbol:
+    type: string
+    example: AAPL
+    description: Underlying ticker symbol.
+  description:
+    type: string
+    example: NASDAQ
+    description: Primary exchange of the contract
+  restricted:
+    type: boolean
+    description: Returns if the contract is available for trading.
+  fop:
+    type: string
+    example: 20240105;20240112;20240119;20240126
+    description: Returns a string of dates, separated by semicolons.
+  opt:
+    type: string
+    example: 20240105;20240112;20240119;20240126
+    description: Returns a string of dates, separated by semicolons.
+  war:
+    type: string
+    example: 20240105;20240112;20240119;20240126
+    description: Returns a string of dates, separated by semicolons.
+  sections:
+    type: array
+    uniqueItems: true
+    items:
+      type: object
       properties:
-        conid:
-            type: string
-            example: 265598
-            description: Contract identifier for the unique contract.
-        companyHeader:
-            type: string
-            example: APPLE INC - NASDAQ
-            description: Company Name - Exchange
-        companyName:
-            type: string
-            example: APPLE INC
-            description: Formal name of the company.
-        symbol:
-            type: string
-            example: AAPL
-            description: Underlying ticker symbol.
-        description:
-            type: string
-            example: NASDAQ
-            description: Primary exchange of the contract
-        restricted:
-            type: boolean
-            description: Returns if the contract is available for trading.
-        fop:
-            type: string
-            example: 20240105;20240112;20240119;20240126
-            description: Returns a string of dates, separated by semicolons.
-        opt:
-            type: string
-            example: 20240105;20240112;20240119;20240126
-            description: Returns a string of dates, separated by semicolons.
-        war:
-            type: string
-            example: 20240105;20240112;20240119;20240126
-            description: Returns a string of dates, separated by semicolons.
-        sections:
-          type: array
-          uniqueItems: true
-          items:
-            type: object
-            properties:
-              secType:
-                  type: string
-                  example: OPT
-              months:
-                  type: string
-                  example: NOV23;DEC23;JAN24
-              exchange:
-                  type: string
-                  example: SMART;AMEX;BATS;BOX
+      secType:
+        type: string
+        example: OPT
+      months:
+        type: string
+        example: NOV23;DEC23;JAN24
+      exchange:
+        type: string
+        example: SMART;AMEX;BATS;BOX
