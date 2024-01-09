@@ -7,20 +7,36 @@ info:
 servers:
   # After hyphen, underlying descriptions should be equally indented to same level of indentation.
   - url: https://localhost:5000/v1/api
-    description: URL designated for the Client Portal Gateway requests.
+    description: Client Portal Gateway Base URL
   - url: https://localhost:5000/alpha/api
     description: >
-      URL designated for the Client Portal Gateway alpha requests.
+      Client Portal Gateway Alpha Environment URL
       This requires the local bin/run.bat include '-conf conf.api.alpha.yaml' as a java argument.
       This also requires that conf.api.alpha.yaml is referenced instead of the standard conf.yaml.
   - url: https://api.ibkr.com/v1/api
-    description: URL designated for OAuth 1.0A implementations.
+    description: OAuth 1.0A Base URL.
   - url: https://api.ibkr.com/alpha/api
-    description: URL designated for OAuth 1.0A alpha testing environment. 
+    description: OAuth 1.0A Alpha Environment Base URL. 
   - url: https://api.ibkr.com/tv/api
-    description: URL designated for the unique TradingView integration.
+    description: TradingView Base URL.
 
 paths:
+  /iserver/accounts:
+      get:
+        # Tags allow us to categorize requests, as shown in REDOC directly.
+        tags:
+        - Session
+        - Account
+        summary: Receive brokerage accounts for the current user.
+        description: Returns a list of accounts the user has trading access to, their respective aliases and the currently selected account. Note this endpoint must be called before modifying an order or querying open orders.
+        responses:
+          '200':
+            description: An object containing valid accounts and the account properties regarding trading access. This endpoint is also used to confirm account validation. 
+            content: 
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/iserverAccounts'
+                    
   /iserver/secdef/search:
     get:
       # Tags allow us to categorize requests, as shown in REDOC directly.
@@ -220,7 +236,7 @@ paths:
                   description: Can be used to rename a group. Using this field will recognize the previous name, while the "name" filed will mark the updated name.
                 accounts:
                   type: array
-                  description: Denotes if the symbol value is the ticker symbol or part of the company's name.
+                  description: An array of accounts that should be held in the allocation group and, if using a User-specified allocaiton method, the value correlated to the allocation.
                   items:
                     properties:
                       name:
@@ -254,6 +270,15 @@ paths:
                 - accounts
                 - default_method
             examples:
+              Shares:
+                value: 
+                  name: Group_1_Shares
+                  previous_name: Group_0_Shares
+                  amount: 15
+                  default_method: "S"
+                  accounts:
+                    name: "U456789"
+                    amount: 3
               NetLiq:
                 value: 
                   name: Group_1_NetLiq
@@ -264,15 +289,6 @@ paths:
                   name: Group_1_Equal
                   # amount: 15
                   default_method: "E"
-              Shares:
-                value: 
-                  name: Group_1_Shares
-                  previous_name: Group_0_Shares
-                  amount: 15
-                  default_method: "S"
-                  accounts:
-                    name: "U456789"
-                    amount: 3
       responses:
         '200':
           description: Returns a confirmation that the modification was successful.
@@ -283,8 +299,91 @@ paths:
                   success:
                     type: boolean
 
+    post:
+      tags:
+        - FA Allocation Management
+      summary: Add Allocation Group
+      description: Add a new allocation group. This group can be used to trade in place of the {accountId} for the /iserver/account/{accountId}/orders endpoint.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Group_1_NetLiq
+                  description: Name used to refer to your allocation group. If prev_name is specified, this will become the new name of the group.
+                accounts:
+                  type: array
+                  description: An array of accounts that should be held in the allocation group and, if using a User-specified allocaiton method, the value correlated to the allocation.
+                  items:
+                    properties:
+                      name:
+                        type: string
+                        description: The accountId of a given sub-account.
+                        example: "U1234567"
+                      amount:
+                        type: integer
+                        description: The total distribution value for each sub-account for user-defined allocation methods.
+                        example: 10
+                    required:
+                      - name
+                      - amount
+                default_method:
+                  type: string
+                  default: "N"
+                  enum: [A, E, "N", C, P, R, S]
+                  description: >
+                    IB-computed allocation methods:
+                      * `A` - Available Equity
+                      * `E` - Equal
+                      * `N` - Net Liquidation Value
+                    
+                    User-specified allocation methods:
+                      * `C` - Cash Quantity
+                      * `P` - Percentage
+                      * `R` - Ratios
+                      * `S` - Shares
+              required:
+                - name
+                - accounts
+                - default_method
+            examples:
+              Shares:
+                value: 
+                  name: Group_1_Shares
+                  default_method: "S"
+                  accounts:
+                      - name: "U456789"
+                        amount: 4
+                      - name: "U123456"
+                        amount: 1
+              NetLiq:
+                value: 
+                  name: Group_1_NetLiq
+                  default_method: "N"
+                  accounts:
+                      - name: "U456789"
+                      - name: "U123456"
+              EqualQty:
+                value: 
+                  name: Group_1_Equal
+                  default_method: "E"
+                  accounts:
+                      - name: "U456789"
+                      - name: "U123456"
+      responses:
+        '200':
+          description: Returns a confirmation that the modification was successful.
+          content: 
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
 
-    # post:
 
 components:
   schemas:
@@ -340,3 +439,162 @@ components:
               exchange:
                 type: string
                 example: SMART;AMEX;BATS;BOX
+
+    iserverAccounts:
+      properties:
+        accounts:
+          type: array
+          description: Returns an array of all accessible accountIds.
+          items:
+            example: "U1234567"
+            type: string
+            description: An accessible accountId 
+        acctProps:
+          type: object
+          description: Returns an json object for each accessible account’s properties.
+          properties:
+            U1234567:
+              type: object
+              properties:
+                hasChildAccounts:
+                  type: boolean
+                supportsCashQty:
+                  type: boolean
+                noFXConv: 
+                  type: boolean
+                isProp: 
+                  type: boolean
+                supportsFractions:
+                  type: boolean
+                allowCustomerTime:
+                  type: boolean
+        aliases:
+          type: object
+          properties:
+            "U1234567": 
+              type: string
+              example: "Example_Alias"
+        allowFeatures:
+          type: object
+          properties:
+            showGFIS: 
+              type: boolean
+            showEUCostReport: 
+              type: boolean
+            allowEventContract:
+              type: boolean
+            allowFXConv:
+              type: boolean
+            allowFinancialLens:
+              type: boolean
+            allowMTA:
+              type: boolean
+            allowTypeAhead: 
+              type: boolean
+            allowEventTrading: 
+              type: boolean
+            snapshotRefreshTimeout: 
+              type: integer
+              format: int64
+              example: 30
+            liteUser: 
+              type: boolean
+            showWebNews: 
+              type: boolean
+            research:
+              type: boolean
+            debugPnl:
+              type: boolean
+            showTaxOpt:
+              type: boolean
+            showImpactDashboard:
+              type: boolean
+            allowDynAccount:
+              type: boolean
+            allowCrypto:
+              type: boolean
+            allowedAssetTypes: 
+              type: string
+              example: "STK,OPT,FUT,CASH,CRYPTO"
+        chartPeriods:
+          type: object
+          properties:
+            "STK":
+              type: array
+              items:
+                example: "*"
+            "CFD":
+              type: array
+              items:
+                example: "*"
+            "OPT":
+              type: array
+              items:
+                example: ["2h","1d","2d","1w","1m"]
+            "FOP":
+              type: array
+              items:
+                example: ["2h","1d","2d","1w","1m"]
+            "WAR":
+              type: array
+              items:
+                example: "*"
+            "IOPT":
+              type: array
+              items:
+                example: "*"
+            "FUT":
+              type: array
+              items:
+                example: "*"
+            "CASH":
+              type: array
+              items:
+                example: "*"
+            "IND":
+              type: array
+              items:
+                example: "*"
+            "BOND":
+              type: array
+              items:
+                example: "*"
+            "FUND":
+              type: array
+              items:
+                example: "*"
+            "CMDTY":
+              type: array
+              items:
+                example: "*"
+            "PHYSS":
+              type: array
+              items:
+                example: "*"
+            "CRYPTO":
+              type: array
+              items:
+                example: "*"
+        groups:
+          type: array
+        profiles:
+          type: array
+        selectedAccount:
+          type: string
+          example: "U1235467"
+        serverInfo:
+          type: object
+          properties:
+            serverName:
+              type: string
+              example: "JifN10037"
+            serverVersion:
+              type: string
+              example: "Build 10.26.1j, Jan 3, 2024 2:11:43 PM"
+        sessionId:
+          type: string
+          example: "659ce14f.0000000a"
+        isFt:
+          type: boolean
+        isPaper:
+          type: boolean
