@@ -21,6 +21,164 @@ servers:
     description: TradingView Base URL.
 
 paths:
+  # Alerts
+  /iserver/account/{accountId}/alert:
+    post:
+      tags:
+        - Alerts
+      summary: Create or Modify Alert
+      description: Endpoint used to create a new alert, or modify an existing alert.
+      parameters:
+        - in: path
+          name: accountId
+          schema:
+            type: string
+            example: U1234567
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                alertName:
+                  type: string
+                  description: Identifier for the unique account to retrieve information from.
+                  example: "AAPL_Price"
+                alertMessage:
+                  type: string
+                  description: The body content of what your alert will report once triggered
+                  example: "AAPL Price Drop!"
+                alertRepeatable:
+                  type: integer
+                  description: Boolean number (0, 1) signifies if an alert can be triggered more than once. A value of ‘1’ is required for MTA alerts
+                  example: 0
+                email:
+                  type: string
+                  description: "user@domain.net"
+                  example: Email address you want to send email alerts to
+                expireTime:
+                  type: string
+                  description: Used with a tif of “GTD” only. Signifies time when the alert should terminate if no alert is triggered.
+                  example: "20231231-12:00:00"
+                iTWSOrdersOnly:
+                  type: integer
+                  description: Boolean number (0, 1) to allow alerts to trigger alerts through the mobile app
+                  example: 0
+                outsideRth:
+                  type: integer
+                  description: Boolean number (0, 1) to allow the alert to trigger outside of regular trading
+                  example: 0
+                sendMessage:
+                  type: integer
+                  description: Boolean number (0, 1) to allow alerts to trigger email messages
+                  example: 0
+                showPopup:
+                  type: integer
+                  description: Boolean number (0, 1) to allow alerts to trigger TWS Pop-up messages
+                  example: 0
+                tif: 
+                  type: string
+                  description: "Time in Force duration of alert. Allowed: [“GTC”, “GTD”]"
+                  example: "GTD"
+                conditions:
+                  type: array
+                  description: Container for all conditions applied for an alert to trigger.
+                  items:
+                    properties:
+                      conidex:
+                        type: string
+                        description: Concatenation of conid and exchange. Formatted as “conid@exchange”
+                        example: “265598@SMART”
+                      logicBind:
+                        type: string
+                        description: >
+                          Describes how multiple conditions should behave together.
+                          Available logic types:
+                            * `a` - AND
+                            * `o` - OR
+                            * `n` - END
+                        default: "a"
+                        enum: ["a", "o", "n"]
+                      operator:
+                        type: string
+                        description: Indicates whether the trigger should be above or below the given value.
+                        example: ">="
+                      timeZone:
+                        type: string
+                        description: Only needed for some MTA alert condition.
+                        example: "US/Eastern"
+                      triggerMethod:
+                        type: integer
+                        description: Pass the string representation of zero, “0”
+                        example: "0"
+                      "type":
+                        type: integer
+                        description: >
+                          Designate what condition type to use. Note the "MTA" types listed are only supported if iTWSOrdersOnly=1
+                          Available condition types:
+                            * `1` - Price
+                            * `3` - Time
+                            * `4` - Margin
+                            * `5` - Trade
+                            * `6` - Volume
+                            * `7` - MTA Market
+                            * `8` - MTA Postion
+                            * `9` - MTA Account Daily PnL
+                        example: 1
+                      "value":
+                        type: string
+                        description: Trigger value based on Type.
+                        default: "*"
+                    required:
+                      - conidex
+                      - logicBind
+                      - operator
+                      - triggerMethod
+                      - type
+                      - value
+              required:
+                - alertName
+                - alertMessage
+                - alertRepeatable
+                - outsideRth
+                - tif
+                - conditions
+      responses:
+        '200':
+            description: An object containing valid accounts and the account properties regarding trading access. This endpoint is also used to confirm account validation. 
+            content: 
+              application/json:
+                schema:
+                  properties:
+                    request_id:
+                      type: integer
+                      example: null
+                    order_id:
+                      type: integer
+                      example: 9876543210
+                      description: >
+                        The tracking number of the alert.
+                        Occasssionally referenced as the alertId or alert_id.
+                    success:
+                      type: boolean
+                      description: Displays result status of alert request
+                    text:
+                      type: string
+                      example: "Submitted"
+                      description: Response message to clarify success status reason.
+                    order_status:
+                      type: string
+                      description: Returns ‘null’
+                      example: null
+                    warning_message:
+                      type: string
+                      description: Returns ‘null’
+                      example: null
+
+
+  # Accounts
   /iserver/accounts:
       get:
         # Tags allow us to categorize requests, as shown in REDOC directly.
@@ -35,8 +193,165 @@ paths:
             content: 
               application/json:
                 schema:
-                  $ref: '#/components/schemas/iserverAccounts'
-                    
+                  properties:
+                    accounts:
+                      type: array
+                      description: Returns an array of all accessible accountIds.
+                      items:
+                        example: "U1234567"
+                        type: string
+                        description: An accessible accountId 
+                    acctProps:
+                      type: object
+                      description: Returns an json object for each accessible account’s properties.
+                      properties:
+                        U1234567:
+                          type: object
+                          properties:
+                            hasChildAccounts:
+                              type: boolean
+                            supportsCashQty:
+                              type: boolean
+                            noFXConv: 
+                              type: boolean
+                            isProp: 
+                              type: boolean
+                            supportsFractions:
+                              type: boolean
+                            allowCustomerTime:
+                              type: boolean
+                    aliases:
+                      type: object
+                      properties:
+                        "U1234567": 
+                          type: string
+                          example: "Example_Alias"
+                    allowFeatures:
+                      type: object
+                      properties:
+                        showGFIS: 
+                          type: boolean
+                        showEUCostReport: 
+                          type: boolean
+                        allowEventContract:
+                          type: boolean
+                        allowFXConv:
+                          type: boolean
+                        allowFinancialLens:
+                          type: boolean
+                        allowMTA:
+                          type: boolean
+                        allowTypeAhead: 
+                          type: boolean
+                        allowEventTrading: 
+                          type: boolean
+                        snapshotRefreshTimeout: 
+                          type: integer
+                          format: int64
+                          example: 30
+                        liteUser: 
+                          type: boolean
+                        showWebNews: 
+                          type: boolean
+                        research:
+                          type: boolean
+                        debugPnl:
+                          type: boolean
+                        showTaxOpt:
+                          type: boolean
+                        showImpactDashboard:
+                          type: boolean
+                        allowDynAccount:
+                          type: boolean
+                        allowCrypto:
+                          type: boolean
+                        allowedAssetTypes: 
+                          type: string
+                          example: "STK,OPT,FUT,CASH,CRYPTO"
+                    chartPeriods:
+                      type: object
+                      properties:
+                        "STK":
+                          type: array
+                          items:
+                            example: "*"
+                        "CFD":
+                          type: array
+                          items:
+                            example: "*"
+                        "OPT":
+                          type: array
+                          items:
+                            example: ["2h","1d","2d","1w","1m"]
+                        "FOP":
+                          type: array
+                          items:
+                            example: ["2h","1d","2d","1w","1m"]
+                        "WAR":
+                          type: array
+                          items:
+                            example: "*"
+                        "IOPT":
+                          type: array
+                          items:
+                            example: "*"
+                        "FUT":
+                          type: array
+                          items:
+                            example: "*"
+                        "CASH":
+                          type: array
+                          items:
+                            example: "*"
+                        "IND":
+                          type: array
+                          items:
+                            example: "*"
+                        "BOND":
+                          type: array
+                          items:
+                            example: "*"
+                        "FUND":
+                          type: array
+                          items:
+                            example: "*"
+                        "CMDTY":
+                          type: array
+                          items:
+                            example: "*"
+                        "PHYSS":
+                          type: array
+                          items:
+                            example: "*"
+                        "CRYPTO":
+                          type: array
+                          items:
+                            example: "*"
+                    groups:
+                      type: array
+                    profiles:
+                      type: array
+                    selectedAccount:
+                      type: string
+                      example: "U1235467"
+                    serverInfo:
+                      type: object
+                      properties:
+                        serverName:
+                          type: string
+                          example: "JifN10037"
+                        serverVersion:
+                          type: string
+                          example: "Build 10.26.1j, Jan 3, 2024 2:11:43 PM"
+                    sessionId:
+                      type: string
+                      example: "659ce14f.0000000a"
+                    isFt:
+                      type: boolean
+                    isPaper:
+                      type: boolean
+  
+  # Accounts       
   /iserver/secdef/search:
     get:
       # Tags allow us to categorize requests, as shown in REDOC directly.
@@ -124,67 +439,8 @@ paths:
                 uniqueItems: true
                 items:
                   $ref: '#/components/schemas/secdefSearch'
-
-  /iserver/watchlist:
-    post:
-      tags: 
-        - Watchlists
-      summary: Create a watchlist to monitor a set of instruments.
-      description: Create a named watchlist by submitting a set of conids. 
-      requestBody:
-        description: Watchlist contents.
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                id:
-                  type: string
-                  description: Must be a number, digits 0-9 only. Must be unique relative to other watchlist IDs.
-                name:
-                  type: string
-                  description: Arbitrary human-readable name to be displayed in TWS and Client Portal.
-                rows:
-                  type: array
-                  description: Array of JSON objects corresponding to watchlist rows, one per instruments.
-                  uniqueItems: true
-                  items:
-                    properties:
-                      C:
-                        type: string
-                        description: Conid as string. 
-              required:
-                - id
-                - name
-                - rows
-      responses:
-        '200':
-          description: Watchlist creation successful.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: string
-                    description: The submitted watchlist ID.
-                  hash:
-                    type: string
-                    description: IB's internal hash of the submitted watchlist.
-                  name:
-                    type: string
-                    description: The submitted human-readable watchlist name.
-                  readOnly:
-                    type: boolean
-                    description: Indicates whether watchlist is write-restricted. User-created watchlists will always show false.
-                  instruments:
-                    type: array
-                    description: Array will always be empty. Contents can be queried via GET /iserver/watchlist?id=
-                    items:
-                      type: string
-                    maxItems: 0
-
+  
+  # FA Allocation Management
   /iserver/account/allocation/group:
     get:
       tags:
@@ -384,7 +640,67 @@ paths:
                   success:
                     type: boolean
 
-
+  # Watchlists
+  /iserver/watchlist:
+    post:
+      tags: 
+        - Watchlists
+      summary: Create a watchlist to monitor a set of instruments.
+      description: Create a named watchlist by submitting a set of conids. 
+      requestBody:
+        description: Watchlist contents.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Must be a number, digits 0-9 only. Must be unique relative to other watchlist IDs.
+                name:
+                  type: string
+                  description: Arbitrary human-readable name to be displayed in TWS and Client Portal.
+                rows:
+                  type: array
+                  description: Array of JSON objects corresponding to watchlist rows, one per instruments.
+                  uniqueItems: true
+                  items:
+                    properties:
+                      C:
+                        type: string
+                        description: Conid as string. 
+              required:
+                - id
+                - name
+                - rows
+      responses:
+        '200':
+          description: Watchlist creation successful.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: The submitted watchlist ID.
+                  hash:
+                    type: string
+                    description: IB's internal hash of the submitted watchlist.
+                  name:
+                    type: string
+                    description: The submitted human-readable watchlist name.
+                  readOnly:
+                    type: boolean
+                    description: Indicates whether watchlist is write-restricted. User-created watchlists will always show false.
+                  instruments:
+                    type: array
+                    description: Array will always be empty. Contents can be queried via GET /iserver/watchlist?id=
+                    items:
+                      type: string
+                    maxItems: 0
+  
 components:
   schemas:
     secdefSearch:
@@ -440,161 +756,3 @@ components:
                 type: string
                 example: SMART;AMEX;BATS;BOX
 
-    iserverAccounts:
-      properties:
-        accounts:
-          type: array
-          description: Returns an array of all accessible accountIds.
-          items:
-            example: "U1234567"
-            type: string
-            description: An accessible accountId 
-        acctProps:
-          type: object
-          description: Returns an json object for each accessible account’s properties.
-          properties:
-            U1234567:
-              type: object
-              properties:
-                hasChildAccounts:
-                  type: boolean
-                supportsCashQty:
-                  type: boolean
-                noFXConv: 
-                  type: boolean
-                isProp: 
-                  type: boolean
-                supportsFractions:
-                  type: boolean
-                allowCustomerTime:
-                  type: boolean
-        aliases:
-          type: object
-          properties:
-            "U1234567": 
-              type: string
-              example: "Example_Alias"
-        allowFeatures:
-          type: object
-          properties:
-            showGFIS: 
-              type: boolean
-            showEUCostReport: 
-              type: boolean
-            allowEventContract:
-              type: boolean
-            allowFXConv:
-              type: boolean
-            allowFinancialLens:
-              type: boolean
-            allowMTA:
-              type: boolean
-            allowTypeAhead: 
-              type: boolean
-            allowEventTrading: 
-              type: boolean
-            snapshotRefreshTimeout: 
-              type: integer
-              format: int64
-              example: 30
-            liteUser: 
-              type: boolean
-            showWebNews: 
-              type: boolean
-            research:
-              type: boolean
-            debugPnl:
-              type: boolean
-            showTaxOpt:
-              type: boolean
-            showImpactDashboard:
-              type: boolean
-            allowDynAccount:
-              type: boolean
-            allowCrypto:
-              type: boolean
-            allowedAssetTypes: 
-              type: string
-              example: "STK,OPT,FUT,CASH,CRYPTO"
-        chartPeriods:
-          type: object
-          properties:
-            "STK":
-              type: array
-              items:
-                example: "*"
-            "CFD":
-              type: array
-              items:
-                example: "*"
-            "OPT":
-              type: array
-              items:
-                example: ["2h","1d","2d","1w","1m"]
-            "FOP":
-              type: array
-              items:
-                example: ["2h","1d","2d","1w","1m"]
-            "WAR":
-              type: array
-              items:
-                example: "*"
-            "IOPT":
-              type: array
-              items:
-                example: "*"
-            "FUT":
-              type: array
-              items:
-                example: "*"
-            "CASH":
-              type: array
-              items:
-                example: "*"
-            "IND":
-              type: array
-              items:
-                example: "*"
-            "BOND":
-              type: array
-              items:
-                example: "*"
-            "FUND":
-              type: array
-              items:
-                example: "*"
-            "CMDTY":
-              type: array
-              items:
-                example: "*"
-            "PHYSS":
-              type: array
-              items:
-                example: "*"
-            "CRYPTO":
-              type: array
-              items:
-                example: "*"
-        groups:
-          type: array
-        profiles:
-          type: array
-        selectedAccount:
-          type: string
-          example: "U1235467"
-        serverInfo:
-          type: object
-          properties:
-            serverName:
-              type: string
-              example: "JifN10037"
-            serverVersion:
-              type: string
-              example: "Build 10.26.1j, Jan 3, 2024 2:11:43 PM"
-        sessionId:
-          type: string
-          example: "659ce14f.0000000a"
-        isFt:
-          type: boolean
-        isPaper:
-          type: boolean
