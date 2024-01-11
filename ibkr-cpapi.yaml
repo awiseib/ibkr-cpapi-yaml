@@ -177,6 +177,486 @@ paths:
                       description: Returns ‘null’
                       example: null
 
+  /iserver/account/{accountId}/alerts:
+    get:
+      tags:
+        - Alerts
+      summary: Get a list of available alerts
+      description: Retrieve a list of all alerts attached to the provided account.
+      parameters:
+        - in: path
+          name: accountId
+          required: true
+          schema:
+            type: string
+            example: "U1234567"
+            description: Identifier for the unique account to retrieve information from. 
+      responses:
+        '200':
+          description: An array of objects detailing contract information.
+          content: 
+            application/json:
+              schema:
+                type: array
+                uniqueItems: true
+                items:
+                  description: An array containing all alerts as separate objects.
+                  properties:
+                    order_id:
+                      type: integer
+                      description: The searchable order ID
+                      example: 9876543210
+                    account:
+                      type: string
+                      description: The account the alert was attributed to.
+                      example: "U1234567"
+                    alert_name:
+                      type: string
+                      description: The requested name for the alert.
+                      example: "AAPL Price"
+                    alert_active:
+                      type: integer
+                      description: Determines if the alert is active or not
+                      example: 1
+                    order_time:
+                      type: string
+                      description: UTC-formatted time of the alert’s creation.
+                      example: "20231211-18:55:35"
+                    alert_triggered:
+                      type: boolean
+                      description: Confirms if the order is is triggered or not.
+                      example: false
+                    alert_repeatable:
+                      type: integer
+                      description: Confirms if the alert is enabled to occur more than once.
+                      example: 0
+
+  /iserver/account/alert/{order_id}:
+    get:
+      tags:
+        - Alerts
+      summary: Get details of a specific alert
+      description: Request details of a specific alert by providing the assigned order ID.
+      parameters:
+        - in: path
+          name: accountId
+          required: true
+          schema:
+            type: string
+            example: "U1234567"
+            description: Identifier for the unique account to retrieve information from. 
+      responses:
+        '200':
+          description: An object containing all unique details of the specified alert.
+          content: 
+            application/json:
+              schema:
+                properties:
+                  account:
+                    type: string
+                    description: Requestor’s account ID
+                    example: 
+                  order_id:
+                    type: integer
+                    description: Alert’s tracking ID. Can be used for modifying or deleting alerts.
+                    example: 
+                  alertName:
+                    type: string
+                    description: Human readable name of the alert.
+                    example: 
+                  tif:
+                    type: string
+                    description: Time in Force effective for the Alert
+                    example: 
+                  expire_time:
+                    type: string
+                    description: Returns the UTC formatted date used in GTD orders.
+                    example: 
+                  alert_active:
+                    type: integer
+                    description: Returns if the alert is active or disabled.
+                    example: 
+                  alert_repeatable:
+                    type: integer
+                    description: Returns if the alert can be sent more than once.
+                    example: 
+                  alert_email:
+                    type: string
+                    description: Returns the designated email address for sendMessage functionality.
+                    example: 
+                  alert_send_message:
+                    type: integer
+                    description: Returns whether or not the alert will send an email.
+                    example: 
+                  alert_message:
+                    type: string
+                    description: Returns the body content of what your alert will report once triggered
+                    example: 
+                  alert_show_popup:
+                    type: integer
+                    description: Returns whether or not the alert will trigger TWS Pop-up messages
+                    example: 
+                  alert_play_audio:
+                    type: integer
+                    description: Returns whether or not the alert will play audio
+                    example: 
+                  order_status:
+                    type: string
+                    description: Always returns “Presubmitted”.
+                    example: 
+                  alert_triggered:
+                    type: integer
+                    description: Returns whether or not the alert was triggered yet.
+                    example: 
+                  fg_color:
+                    type: string
+                    description: Always returns “#FFFFFF”. Can be ignored.
+                    example: 
+                  bg_color:
+                    type: string
+                    description: Always returns “#000000”. Can be ignored.
+                    example: 
+                  order_not_editable:
+                    type: boolean
+                    description: Returns if the order can be edited.
+                    example: 
+                  itws_orders_only:
+                    type: integer
+                    description: Returns whether or not the alert will trigger mobile notifications.
+                    example: 
+                  alert_mta_currency:
+                    type: string
+                    description: Returns currency set for MTA alerts. Only valid for alert type 8 & 9.
+                    example: 
+                  alert_mta_defaults:
+                    type: string
+                    description: Returns current MTA default values.
+                    example: 
+                  tool_id:
+                    type: integer
+                    description: Tracking ID for MTA alerts only. Returns ‘null’ for standard alerts.
+                    example: 
+                  time_zone:
+                    type: string
+                    description: Returned for time-specifc conditions.
+                    example: 
+                  alert_default_type:
+                    type: integer
+                    description: Returns default type set for alerts. Configured in Client Portal.
+                    example: 
+                  condition_size:
+                    type: integer
+                    description: Returns the total number of conditions in the alert.
+                    example: 
+                  condition_outside_rth:
+                    type: integer
+                    description: Returns whether or not the alert will trigger outside of regular trading hours.
+                    example: 
+                  conditions: 
+                    type: array
+                    description: Returns all conditions
+                    items:
+                      properties:
+                        condition_type:
+                          type: integer
+                          description: Returns the type of condition set.
+                          example: 1
+                        conidex:
+                          type: string
+                          description: Returns full conidex in the format “conid@exchange”
+                          example: "265598@ISLAND"
+                        contract_description_1:
+                          type: string
+                          description: Includes relevant descriptions (if applicable).
+                          example: "AAPL"
+                        condition_operator:
+                          type: string
+                          description: Returns condition set for alert.
+                          example: "<="
+                        condition_trigger_method:
+                          type: integer
+                          description: Returns triggerMethod value set.
+                          example: "0"
+                        condition_value:
+                          type: string
+                          description: Returns value set.
+                          example: "178.98"
+                        condition_logic_bind:
+                          type: boolean
+                          description: Returns logic_bind value set.
+                          example: "n"
+                        condition_time_zone:
+                          type: string
+                          description: Returns timeZone value set.
+                          example: null
+
+  /iserver/account/mta:
+    get:
+      tags:
+        - Alerts
+      summary: Get MTA Alert
+      description: >
+        Retrieve information about your MTA alert.
+        Each login user only has one mobile trading assistant (MTA) alert with it’s own unique tool id that cannot be changed.
+        MTA alerts can not be created or deleted, only modified. When modified a new order Id is generated.
+        See our <a href="https://www.ibkrguides.com/iphone/alerts.htm">Mobile Alert Guide</a> for more information on MTA alerts.
+      responses:
+        '200':
+          description: The alert description for the unique MTA alert on the account.
+          content: 
+            application/json:
+              schema:
+                properties:
+                  account:
+                    type: string
+                    description: Requestor’s account ID
+                    example: "U1234567"
+                  order_id:
+                    type: integer
+                    description: Alert’s tracking ID. Can be used for modifying or deleting alerts.
+                    example: 9876543210
+                  alertName:
+                    type: string
+                    description: Human readable name of the alert.
+                    example: "AAPL Price"
+                  tif:
+                    type: string
+                    description: Time in Force effective for the Alert
+                    example: "GTD"
+                  expire_time:
+                    type: string
+                    description: Returns the UTC formatted date used in GTD orders.
+                    example: "20231231-12:00:00"
+                  alert_active:
+                    type: integer
+                    description: Returns if the alert is active or disabled.
+                    example: 1
+                  alert_repeatable:
+                    type: integer
+                    description: Returns if the alert can be sent more than once.
+                    example: 0
+                  alert_email:
+                    type: string
+                    description: Returns the designated email address for sendMessage functionality.
+                    example: null
+                  alert_send_message:
+                    type: integer
+                    description: Returns whether or not the alert will send an email.
+                    example: 0
+                  alert_message:
+                    type: string
+                    description: Returns the body content of what your alert will report once triggered
+                    example: "MTA TEST!"
+                  alert_show_popup:
+                    type: integer
+                    description: Returns whether or not the alert will trigger TWS Pop-up messages
+                    example: 0
+                  alert_play_audio:
+                    type: integer
+                    description: Returns whether or not the alert will play audio
+                    example: null
+                  order_status:
+                    type: string
+                    description: Always returns “Presubmitted”.
+                    example: "“Presubmitted”"
+                  alert_triggered:
+                    type: integer
+                    description: Returns whether or not the alert was triggered yet.
+                    example: 0
+                  fg_color:
+                    type: string
+                    description: Always returns “#FFFFFF”. Can be ignored.
+                    example: "#FFFFFF"
+                  bg_color:
+                    type: string
+                    description: Always returns “#000000”. Can be ignored.
+                    example: #000000
+                  order_not_editable:
+                    type: boolean
+                    description: Returns if the order can be edited.
+                    example: false
+                  itws_orders_only:
+                    type: integer
+                    description: Returns whether or not the alert will trigger mobile notifications.
+                    example: 0
+                  alert_mta_currency:
+                    type: string
+                    description: Returns currency set for MTA alerts. Only valid for alert type 8 & 9.
+                    example: "USD"
+                  alert_mta_defaults:
+                    type: string
+                    description: Returns current MTA default values.
+                    example: "9:STATE=1,MIN=-43275000,MAX=43275000,STEP=500,DEF_MIN=-4327500,DEF_MAX=4327500|8:STATE=0,MIN=-15,MAX=15,STEP=0.5,DEF_MIN=-2,DEF_MAX=2|7:STATE=1,MIN=-5,MAX=5,STEP=0.5,DEF_MIN=-2,DEF_MAX=2|4:STATE=1,MIN=1,MAX=50,STEP=1,DEF_VAL=10|5:STATE=0"
+                  tool_id:
+                    type: integer
+                    description: Tracking ID for MTA alerts only. Returns ‘null’ for standard alerts.
+                    example: 55834574848
+                  time_zone:
+                    type: string
+                    description: Returned for time-specifc conditions.
+                    example: null
+                  alert_default_type:
+                    type: integer
+                    description: Returns default type set for alerts. Configured in Client Portal.
+                    example: null
+                  condition_size:
+                    type: integer
+                    description: Returns the total number of conditions in the alert.
+                    example: 0
+                  condition_outside_rth:
+                    type: integer
+                    description: Returns whether or not the alert will trigger outside of regular trading hours.
+                    example: 0
+                  conditions: 
+                    type: array
+                    description: Returns all conditions.
+                    items:
+                      properties:
+                        condition_type:
+                          type: integer
+                          description: Returns the type of condition set.
+                          example: 9
+                        conidex:
+                          type: string
+                          description: Returns full conidex in the format “conid@exchange”
+                          example: "265598@ISLAND"
+                        contract_description_1:
+                          type: string
+                          description: Includes relevant descriptions (if applicable).
+                          example: "AAPL"
+                        condition_operator:
+                          type: string
+                          description: Returns condition set for alert.
+                          example: "<="
+                        condition_trigger_method:
+                          type: integer
+                          description: Returns triggerMethod value set.
+                          example: "0"
+                        condition_value:
+                          type: string
+                          description: Returns value set.
+                          example: "178.98"
+                        condition_logic_bind:
+                          type: boolean
+                          description: Returns logic_bind value set.
+                          example: "n"
+                        condition_time_zone:
+                          type: string
+                          description: Returns timeZone value set.
+                          example: null
+
+  /iserver/account/{accountId}/alert/activate:
+      post:
+        tags:
+          - Alerts
+        summary: Activate or deactivate an alert
+        description: Activate or Deactivate existing alerts created for this account. This does not delete alerts, but disables notifications until reactivated.
+        parameters:
+          - in: path
+            name: accountId
+            schema:
+              type: string
+              example: U1234567
+            required: true
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  alertId:
+                    type: integer
+                    description: The alertId, or order_id, received from order creation or the list of alerts.
+                    example: 9876543210
+                  alertActive:
+                    type: integer
+                    description: Set whether or not the alert should be active (1) or inactive (0).
+                    example: 1
+                required:
+                  - alertId
+                  - alertActive
+        responses:
+          '200':
+              description: An object containing details about the modified alert.
+              content: 
+                application/json:
+                  schema:
+                    properties:
+                      request_id:
+                        type: integer
+                        example: null
+                      order_id:
+                        type: integer
+                        example: 9876543210
+                        description: >
+                          The tracking number of the alert.
+                          Occasssionally referenced as the alertId or alert_id.
+                      success:
+                        type: boolean
+                        description: Displays result status of alert request
+                      text:
+                        type: string
+                        example: "Request was submitted"
+                        description: Response message to clarify success status reason.
+                      failure_list:
+                        type: string
+                        description: If “success” returns false, will list failed order Ids
+                        example: null
+
+  /iserver/account/{accountId}/alert/{alertId}:
+      delete:
+        tags:
+          - Alerts
+        summary: Delete an alert
+        description: Permanently delete an existing alert. Deleting an MTA alert will reset it to the default state.
+        parameters:
+          - in: path
+            name: accountId
+            schema:
+              type: string
+              example: U1234567
+            required: true
+          - in: path
+            name: alertId
+            schema:
+              type: string
+              description: order_id returned from the original alert creation, or from the list of available alerts.
+              example: "9876543210"
+            required: true
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+        responses:
+          '200':
+              description: An object containing details on the deleted endpoint.
+              content: 
+                application/json:
+                  schema:
+                    properties:
+                      request_id:
+                        type: integer
+                        example: null
+                      order_id:
+                        type: integer
+                        example: 9876543210
+                        description: >
+                          The tracking number of the alert.
+                          Occasssionally referenced as the alertId or alert_id.
+                      success:
+                        type: boolean
+                        description: Displays result status of alert request
+                      text:
+                        type: string
+                        example: "Request was submitted"
+                        description: Response message to clarify success status reason.
+                      failure_list:
+                        type: string
+                        description: If “success” returns false, will list failed order Ids
+                        example: null
 
   # Accounts
   /iserver/accounts:
