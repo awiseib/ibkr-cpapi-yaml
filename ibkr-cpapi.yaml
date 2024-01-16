@@ -659,12 +659,247 @@ paths:
                         example: null
 
   # Accounts
+  /iserver/account/pnl/partitioned:
+      get:
+        # Tags allow us to categorize requests, as shown in REDOC directly.
+        tags:
+        - Accounts
+        summary: Account Profit and Loss
+        responses:
+          '200':
+            description: Refers to “updated PnL”. Holds a json object of key-value paired pnl details. 
+            content: 
+              application/json:
+                schema:
+                  properties:
+                    upnl:
+                      type: object
+                      description: Refers to the U accounts PnL. This does reference Realized Profit and Loss.
+                      properties:
+                        "U1234567.Core":
+                          type: object
+                          description: The account or model's Profit and Loss. 
+                          properties:
+                            rowType:
+                              type: integer
+                              description: Returns the positional value of the returned account. Always returns 1 for individual accounts.
+                              example: 1
+                            dpl:
+                              type: integer
+                              description: Daily PnL for the specified account profile.
+                              example: 15.7
+                            nl:
+                              type: integer
+                              description: Net Liquidity for the specified account profile.
+                              example: 10000.0
+                            upl:
+                              type: integer
+                              description: Unrealized PnL for the specified account profile.
+                              example: 607.0
+                            el:
+                              type: integer
+                              description: Excess Liquidity for the specified account profile.
+                              example: 10000.0
+                            mv:
+                              type: integer
+                              description: Margin value for the specified account profile.
+                              example: 0.0
+  
+  /iserver/account/search/{searchPattern}:
+      get:
+        # Tags allow us to categorize requests, as shown in REDOC directly.
+        tags:
+        - Accounts
+        summary: Search Dynamic Account
+        description: >
+          Returns a list of accounts matching a query pattern set in the request.
+          Broker accounts configured with the DYNACCT property will not receive account information at login. Instead, they must dynamically query then set their account number.
+          Customers without the DYNACCT property will receive a 503 error. 
+        parameters:
+          - in: path
+            name: searchPattern
+            schema:
+              type: string
+              description: The pattern used to describe credentials to search for. Including part of part of an account ID will return the full value.
+              example: U123
+            required: true
+
+        responses:
+          '200':
+            description: Returns all accounts that match the searchPattern string.
+            content: 
+              application/json:
+                schema:
+                  properties:
+                    matchedAccounts:
+                      type: array
+                      description: Contains a series of objects that pertain to the account information requested.
+                      items:
+                        properties:
+                          accountId:
+                            type: string
+                            description: Returns a matching account ID that corresponds to the matching value.
+                            example: "U1234567"
+                          alias:
+                            type: string
+                            description: Returns the corresponding alias or alternative name for the specific account ID. May be a duplicate of the accountId value in most cases.
+                            example: "Example_Alias"
+                          allocationId:
+                            type: string
+                            description: Returns the allocation identifier used internally for the account.
+                            example: "1"
+                    pattern:
+                      type: string
+                      description: Displays the searchPattern used for the request.
+                      example: "U123"
+
+  /iserver/dynaccount:
+    post:
+      tags:
+      - Accounts
+      summary: Set Dynamic Account
+      description: Set the active dynamic account.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                acctId:
+                  type: string
+                  example: "U1234567"
+                  description: The account ID that should be set for future requests.
+              required:
+                - acctId
+      responses:
+        '200':
+          description: An array of objects detailing contract information.
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties:
+                  set:
+                    type: boolean
+                    description: Confirms if the account change was fully set.
+                  acctId:
+                    type: string
+                    example: "U123567"
+                    description: The account ID specified in the request body.
+
+  /acesws/{accountId}/signatures-and-owners:
+    get:
+      tags:
+        - Accounts
+      summary: Signatures and Owners
+      description: Receive a list of all applicant names on the account and for which account and entity is represented.
+      parameters:
+        - in: path
+          name: accountId
+          schema:
+            type: string
+            description: Pass the account identifier to receive information for.
+            example: U1234567
+          required: true
+      responses:
+        '200':
+            description: An object containing valid accounts and the account properties regarding trading access. This endpoint is also used to confirm account validation. 
+            content: 
+              application/json:
+                schema:
+                  properties:
+                    accountId:
+                      example: "U1234567"
+                      type: string
+                      description: An accessible accountId
+                    users:
+                      type: array
+                      description: Returns all usernames and their information affiliated with the account.
+                      items:
+                        properties:
+                          roleId:
+                            type: string
+                          hasRightCodeInd:
+                            type: string
+                          userName:
+                            type: string
+                          entity:
+                            type: object
+                            description: Provides information about the particular entity.
+                            properties:
+                              firstName:
+                                type: string
+                                example: John
+                                description: Returns the first name of the user.
+                              lastName:
+                                type: string
+                                example: Smith
+                                description: Returns the last name of the user.
+                              entityType:
+                                type: string
+                                enum:
+                                  - INDIVIDUAL
+                                  - Joint
+                                  - ORG
+                                description: Returns the type of entity assigned to the user.
+                              entityName:
+                                type: string
+                                example: John Smith
+                                description: Returns the full entity’s name, concatenating the first and last name fields.
+                    applicant:
+                      description: Provides information about the individual listed for the account.
+                      properties:
+                        signatures:
+                          description: Returns all names attached to the account.
+                          type: array
+                          items:
+                            example: John Smith
+
+  /iserver/account:
+    post:
+      tags:
+        - Accounts
+      summary: Switch Account
+      description: >
+        Switch the active account for how you request data.
+        Only available for financial advisors and multi-account structures.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                acctId:
+                  example: "U1234567"
+                  description: Identifier for the unique account to retrieve information from.
+                  type: string
+      responses:
+        '200':
+          description: Validates the account swapped to.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  set:
+                    type: boolean
+                    description: Confirms that the account change was set
+                  acctId:
+                    type: string
+                    example: U1234567
+                    description: Confirms the account switched to.
+            
+
+
+
   /iserver/accounts:
       get:
         # Tags allow us to categorize requests, as shown in REDOC directly.
         tags:
         - Session
-        - Account
+        - Accounts
         summary: Receive brokerage accounts for the current user.
         description: Returns a list of accounts the user has trading access to, their respective aliases and the currently selected account. Note this endpoint must be called before modifying an order or querying open orders.
         responses:
