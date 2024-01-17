@@ -22,215 +22,7 @@ servers:
 
 paths:
   # Alerts
-  /iserver/account/{accountId}/alert:
-    post:
-      tags:
-        - Alerts
-      summary: Create or Modify Alert
-      description: Endpoint used to create a new alert, or modify an existing alert.
-      parameters:
-        - in: path
-          name: accountId
-          schema:
-            type: string
-            example: U1234567
-          required: true
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                alertName:
-                  type: string
-                  description: Identifier for the unique account to retrieve information from.
-                  example: "AAPL_Price"
-                alertMessage:
-                  type: string
-                  description: The body content of what your alert will report once triggered
-                  example: "AAPL Price Drop!"
-                alertRepeatable:
-                  type: integer
-                  description: Boolean number (0, 1) signifies if an alert can be triggered more than once. A value of ‘1’ is required for MTA alerts
-                  example: 0
-                email:
-                  type: string
-                  description: "user@domain.net"
-                  example: Email address you want to send email alerts to
-                expireTime:
-                  type: string
-                  description: Used with a tif of “GTD” only. Signifies time when the alert should terminate if no alert is triggered.
-                  example: "20231231-12:00:00"
-                iTWSOrdersOnly:
-                  type: integer
-                  description: Boolean number (0, 1) to allow alerts to trigger alerts through the mobile app
-                  example: 0
-                outsideRth:
-                  type: integer
-                  description: Boolean number (0, 1) to allow the alert to trigger outside of regular trading
-                  example: 0
-                sendMessage:
-                  type: integer
-                  description: Boolean number (0, 1) to allow alerts to trigger email messages
-                  example: 0
-                showPopup:
-                  type: integer
-                  description: Boolean number (0, 1) to allow alerts to trigger TWS Pop-up messages
-                  example: 0
-                tif: 
-                  type: string
-                  description: "Time in Force duration of alert. Allowed: [“GTC”, “GTD”]"
-                  example: "GTD"
-                conditions:
-                  type: array
-                  description: Container for all conditions applied for an alert to trigger.
-                  items:
-                    properties:
-                      conidex:
-                        type: string
-                        description: Concatenation of conid and exchange. Formatted as “conid@exchange”
-                        example: “265598@SMART”
-                      logicBind:
-                        type: string
-                        description: >
-                          Describes how multiple conditions should behave together.
-                          Available logic types:
-                            * `a` - AND
-                            * `o` - OR
-                            * `n` - END
-                        default: "a"
-                        enum: ["a", "o", "n"]
-                      operator:
-                        type: string
-                        description: Indicates whether the trigger should be above or below the given value.
-                        example: ">="
-                      timeZone:
-                        type: string
-                        description: Only needed for some MTA alert condition.
-                        example: "US/Eastern"
-                      triggerMethod:
-                        type: integer
-                        description: Pass the string representation of zero, “0”
-                        example: "0"
-                      "type":
-                        type: integer
-                        description: >
-                          Designate what condition type to use. Note the "MTA" types listed are only supported if iTWSOrdersOnly=1
-                          Available condition types:
-                            * `1` - Price
-                            * `3` - Time
-                            * `4` - Margin
-                            * `5` - Trade
-                            * `6` - Volume
-                            * `7` - MTA Market
-                            * `8` - MTA Postion
-                            * `9` - MTA Account Daily PnL
-                        example: 1
-                      "value":
-                        type: string
-                        description: Trigger value based on Type.
-                        default: "*"
-                    required:
-                      - conidex
-                      - logicBind
-                      - operator
-                      - triggerMethod
-                      - type
-                      - value
-              required:
-                - alertName
-                - alertMessage
-                - alertRepeatable
-                - outsideRth
-                - tif
-                - conditions
-      responses:
-        '200':
-            description: An object containing valid accounts and the account properties regarding trading access. This endpoint is also used to confirm account validation. 
-            content: 
-              application/json:
-                schema:
-                  properties:
-                    request_id:
-                      type: integer
-                      example: null
-                    order_id:
-                      type: integer
-                      example: 9876543210
-                      description: >
-                        The tracking number of the alert.
-                        Occasssionally referenced as the alertId or alert_id.
-                    success:
-                      type: boolean
-                      description: Displays result status of alert request
-                    text:
-                      type: string
-                      example: "Submitted"
-                      description: Response message to clarify success status reason.
-                    order_status:
-                      type: string
-                      description: Returns ‘null’
-                      example: null
-                    warning_message:
-                      type: string
-                      description: Returns ‘null’
-                      example: null
-
-  /iserver/account/{accountId}/alerts:
-    get:
-      tags:
-        - Alerts
-      summary: Get a list of available alerts
-      description: Retrieve a list of all alerts attached to the provided account.
-      parameters:
-        - in: path
-          name: accountId
-          required: true
-          schema:
-            type: string
-            example: "U1234567"
-            description: Identifier for the unique account to retrieve information from. 
-      responses:
-        '200':
-          description: An array of objects detailing contract information.
-          content: 
-            application/json:
-              schema:
-                type: array
-                uniqueItems: true
-                items:
-                  description: An array containing all alerts as separate objects.
-                  properties:
-                    order_id:
-                      type: integer
-                      description: The searchable order ID
-                      example: 9876543210
-                    account:
-                      type: string
-                      description: The account the alert was attributed to.
-                      example: "U1234567"
-                    alert_name:
-                      type: string
-                      description: The requested name for the alert.
-                      example: "AAPL Price"
-                    alert_active:
-                      type: integer
-                      description: Determines if the alert is active or not
-                      example: 1
-                    order_time:
-                      type: string
-                      description: UTC-formatted time of the alert’s creation.
-                      example: "20231211-18:55:35"
-                    alert_triggered:
-                      type: boolean
-                      description: Confirms if the order is is triggered or not.
-                      example: false
-                    alert_repeatable:
-                      type: integer
-                      description: Confirms if the alert is enabled to occur more than once.
-                      example: 0
-
+  
   /iserver/account/alert/{order_id}:
     get:
       tags:
@@ -658,7 +450,285 @@ paths:
                         description: If “success” returns false, will list failed order Ids
                         example: null
 
+  /iserver/account/{accountId}/alert:
+    post:
+      tags:
+        - Alerts
+      summary: Create or Modify Alert
+      description: Endpoint used to create a new alert, or modify an existing alert.
+      parameters:
+        - in: path
+          name: accountId
+          schema:
+            type: string
+            example: U1234567
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                alertName:
+                  type: string
+                  description: Identifier for the unique account to retrieve information from.
+                  example: "AAPL_Price"
+                alertMessage:
+                  type: string
+                  description: The body content of what your alert will report once triggered
+                  example: "AAPL Price Drop!"
+                alertRepeatable:
+                  type: integer
+                  description: Boolean number (0, 1) signifies if an alert can be triggered more than once. A value of ‘1’ is required for MTA alerts
+                  example: 0
+                email:
+                  type: string
+                  description: "user@domain.net"
+                  example: Email address you want to send email alerts to
+                expireTime:
+                  type: string
+                  description: Used with a tif of “GTD” only. Signifies time when the alert should terminate if no alert is triggered.
+                  example: "20231231-12:00:00"
+                iTWSOrdersOnly:
+                  type: integer
+                  description: Boolean number (0, 1) to allow alerts to trigger alerts through the mobile app
+                  example: 0
+                outsideRth:
+                  type: integer
+                  description: Boolean number (0, 1) to allow the alert to trigger outside of regular trading
+                  example: 0
+                sendMessage:
+                  type: integer
+                  description: Boolean number (0, 1) to allow alerts to trigger email messages
+                  example: 0
+                showPopup:
+                  type: integer
+                  description: Boolean number (0, 1) to allow alerts to trigger TWS Pop-up messages
+                  example: 0
+                tif: 
+                  type: string
+                  description: "Time in Force duration of alert. Allowed: [“GTC”, “GTD”]"
+                  example: "GTD"
+                conditions:
+                  type: array
+                  description: Container for all conditions applied for an alert to trigger.
+                  items:
+                    properties:
+                      conidex:
+                        type: string
+                        description: Concatenation of conid and exchange. Formatted as “conid@exchange”
+                        example: “265598@SMART”
+                      logicBind:
+                        type: string
+                        description: >
+                          Describes how multiple conditions should behave together.
+                          Available logic types:
+                            * `a` - AND
+                            * `o` - OR
+                            * `n` - END
+                        default: "a"
+                        enum: ["a", "o", "n"]
+                      operator:
+                        type: string
+                        description: Indicates whether the trigger should be above or below the given value.
+                        example: ">="
+                      timeZone:
+                        type: string
+                        description: Only needed for some MTA alert condition.
+                        example: "US/Eastern"
+                      triggerMethod:
+                        type: integer
+                        description: Pass the string representation of zero, “0”
+                        example: "0"
+                      "type":
+                        type: integer
+                        description: >
+                          Designate what condition type to use. Note the "MTA" types listed are only supported if iTWSOrdersOnly=1
+                          Available condition types:
+                            * `1` - Price
+                            * `3` - Time
+                            * `4` - Margin
+                            * `5` - Trade
+                            * `6` - Volume
+                            * `7` - MTA Market
+                            * `8` - MTA Postion
+                            * `9` - MTA Account Daily PnL
+                        example: 1
+                      "value":
+                        type: string
+                        description: Trigger value based on Type.
+                        default: "*"
+                    required:
+                      - conidex
+                      - logicBind
+                      - operator
+                      - triggerMethod
+                      - type
+                      - value
+              required:
+                - alertName
+                - alertMessage
+                - alertRepeatable
+                - outsideRth
+                - tif
+                - conditions
+      responses:
+        '200':
+            description: An object containing valid accounts and the account properties regarding trading access. This endpoint is also used to confirm account validation. 
+            content: 
+              application/json:
+                schema:
+                  properties:
+                    request_id:
+                      type: integer
+                      example: null
+                    order_id:
+                      type: integer
+                      example: 9876543210
+                      description: >
+                        The tracking number of the alert.
+                        Occasssionally referenced as the alertId or alert_id.
+                    success:
+                      type: boolean
+                      description: Displays result status of alert request
+                    text:
+                      type: string
+                      example: "Submitted"
+                      description: Response message to clarify success status reason.
+                    order_status:
+                      type: string
+                      description: Returns ‘null’
+                      example: null
+                    warning_message:
+                      type: string
+                      description: Returns ‘null’
+                      example: null
+
+  /iserver/account/{accountId}/alerts:
+    get:
+      tags:
+        - Alerts
+      summary: Get a list of available alerts
+      description: Retrieve a list of all alerts attached to the provided account.
+      parameters:
+        - in: path
+          name: accountId
+          required: true
+          schema:
+            type: string
+            example: "U1234567"
+            description: Identifier for the unique account to retrieve information from. 
+      responses:
+        '200':
+          description: An array of objects detailing contract information.
+          content: 
+            application/json:
+              schema:
+                type: array
+                uniqueItems: true
+                items:
+                  description: An array containing all alerts as separate objects.
+                  properties:
+                    order_id:
+                      type: integer
+                      description: The searchable order ID
+                      example: 9876543210
+                    account:
+                      type: string
+                      description: The account the alert was attributed to.
+                      example: "U1234567"
+                    alert_name:
+                      type: string
+                      description: The requested name for the alert.
+                      example: "AAPL Price"
+                    alert_active:
+                      type: integer
+                      description: Determines if the alert is active or not
+                      example: 1
+                    order_time:
+                      type: string
+                      description: UTC-formatted time of the alert’s creation.
+                      example: "20231211-18:55:35"
+                    alert_triggered:
+                      type: boolean
+                      description: Confirms if the order is is triggered or not.
+                      example: false
+                    alert_repeatable:
+                      type: integer
+                      description: Confirms if the alert is enabled to occur more than once.
+                      example: 0
+
   # Accounts
+  
+  /acesws/{accountId}/signatures-and-owners:
+    get:
+      tags:
+        - Accounts
+      summary: Signatures and Owners
+      description: Receive a list of all applicant names on the account and for which account and entity is represented.
+      parameters:
+        - in: path
+          name: accountId
+          schema:
+            type: string
+            description: Pass the account identifier to receive information for.
+            example: U1234567
+          required: true
+      responses:
+        '200':
+            description: An object containing valid accounts and the account properties regarding trading access. This endpoint is also used to confirm account validation. 
+            content: 
+              application/json:
+                schema:
+                  properties:
+                    accountId:
+                      example: "U1234567"
+                      type: string
+                      description: An accessible accountId
+                    users:
+                      type: array
+                      description: Returns all usernames and their information affiliated with the account.
+                      items:
+                        properties:
+                          roleId:
+                            type: string
+                          hasRightCodeInd:
+                            type: string
+                          userName:
+                            type: string
+                          entity:
+                            type: object
+                            description: Provides information about the particular entity.
+                            properties:
+                              firstName:
+                                type: string
+                                example: John
+                                description: Returns the first name of the user.
+                              lastName:
+                                type: string
+                                example: Smith
+                                description: Returns the last name of the user.
+                              entityType:
+                                type: string
+                                enum:
+                                  - INDIVIDUAL
+                                  - Joint
+                                  - ORG
+                                description: Returns the type of entity assigned to the user.
+                              entityName:
+                                type: string
+                                example: John Smith
+                                description: Returns the full entity’s name, concatenating the first and last name fields.
+                    applicant:
+                      description: Provides information about the individual listed for the account.
+                      properties:
+                        signatures:
+                          description: Returns all names attached to the account.
+                          type: array
+                          items:
+                            example: John Smith
+
   /iserver/account/pnl/partitioned:
       get:
         # Tags allow us to categorize requests, as shown in REDOC directly.
@@ -753,109 +823,6 @@ paths:
                       description: Displays the searchPattern used for the request.
                       example: "U123"
 
-  /iserver/dynaccount:
-    post:
-      tags:
-      - Accounts
-      summary: Set Dynamic Account
-      description: Set the active dynamic account.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                acctId:
-                  type: string
-                  example: "U1234567"
-                  description: The account ID that should be set for future requests.
-              required:
-                - acctId
-      responses:
-        '200':
-          description: An array of objects detailing contract information.
-          content: 
-            application/json:
-              schema:
-                type: object
-                properties:
-                  set:
-                    type: boolean
-                    description: Confirms if the account change was fully set.
-                  acctId:
-                    type: string
-                    example: "U123567"
-                    description: The account ID specified in the request body.
-
-  /acesws/{accountId}/signatures-and-owners:
-    get:
-      tags:
-        - Accounts
-      summary: Signatures and Owners
-      description: Receive a list of all applicant names on the account and for which account and entity is represented.
-      parameters:
-        - in: path
-          name: accountId
-          schema:
-            type: string
-            description: Pass the account identifier to receive information for.
-            example: U1234567
-          required: true
-      responses:
-        '200':
-            description: An object containing valid accounts and the account properties regarding trading access. This endpoint is also used to confirm account validation. 
-            content: 
-              application/json:
-                schema:
-                  properties:
-                    accountId:
-                      example: "U1234567"
-                      type: string
-                      description: An accessible accountId
-                    users:
-                      type: array
-                      description: Returns all usernames and their information affiliated with the account.
-                      items:
-                        properties:
-                          roleId:
-                            type: string
-                          hasRightCodeInd:
-                            type: string
-                          userName:
-                            type: string
-                          entity:
-                            type: object
-                            description: Provides information about the particular entity.
-                            properties:
-                              firstName:
-                                type: string
-                                example: John
-                                description: Returns the first name of the user.
-                              lastName:
-                                type: string
-                                example: Smith
-                                description: Returns the last name of the user.
-                              entityType:
-                                type: string
-                                enum:
-                                  - INDIVIDUAL
-                                  - Joint
-                                  - ORG
-                                description: Returns the type of entity assigned to the user.
-                              entityName:
-                                type: string
-                                example: John Smith
-                                description: Returns the full entity’s name, concatenating the first and last name fields.
-                    applicant:
-                      description: Provides information about the individual listed for the account.
-                      properties:
-                        signatures:
-                          description: Returns all names attached to the account.
-                          type: array
-                          items:
-                            example: John Smith
-
   /iserver/account:
     post:
       tags:
@@ -890,9 +857,6 @@ paths:
                     type: string
                     example: U1234567
                     description: Confirms the account switched to.
-            
-
-
 
   /iserver/accounts:
       get:
@@ -1066,7 +1030,225 @@ paths:
                     isPaper:
                       type: boolean
   
-  # Accounts       
+  /iserver/dynaccount:
+    post:
+      tags:
+      - Accounts
+      summary: Set Dynamic Account
+      description: Set the active dynamic account.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                acctId:
+                  type: string
+                  example: "U1234567"
+                  description: The account ID that should be set for future requests.
+              required:
+                - acctId
+      responses:
+        '200':
+          description: An array of objects detailing contract information.
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties:
+                  set:
+                    type: boolean
+                    description: Confirms if the account change was fully set.
+                  acctId:
+                    type: string
+                    example: "U123567"
+                    description: The account ID specified in the request body.
+
+  # Contracts       
+  
+  /iserver/contract/rules:
+    post:
+      tags:
+      - Contracts
+      summary: Search Contract Rules
+      description: Returns trading related rules for a specific contract and side.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                conid:
+                  type: integer
+                  description: Contract identifier for the interested contract.
+                isBuy:
+                  type: boolean
+                  description: Side of the market rules apply too. Set to true for Buy Orders, set to false for Sell orders.
+                  default: true
+                modifyOrder:
+                  type: boolean
+                  description: Used to find trading rules related to an existing order.
+                  default: false
+                orderId:
+                  type: integer
+                  description: Specify the order identifier used for tracking a given order.
+      responses:
+        '200':
+          description: An array of objects detailing contract information.
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/contractRules'
+
+  /iserver/contract/{conid}/algos:
+      get:
+        # Tags allow us to categorize requests, as shown in REDOC directly.
+        tags:
+        - Contracts
+        summary: Search Algo Params by Contract ID
+        description: Returns supported IB Algos for contract. A pre-flight request must be submitted before retrieving information
+        parameters:
+          - in: path
+            name: conid
+            required: true
+            schema:
+              example: "265598"
+              description: Contract identifier for the requested contract of interest.
+          - in: query
+            name: algos
+            schema:
+              example: "Adaptive;Vwap"
+              description: >
+                List of algo ids delimited by “;” to filter by.
+                Max of 8 algos ids can be specified.
+                Case sensitive to algo id.
+          - in: query
+            name: addDescription
+            schema:
+              example: 1
+              default: 0
+              description: Whether or not to add algo descriptions to response. Set to 1 for yes, 0 for no.
+          - in: query
+            name: addParams
+            schema:
+              example: 1
+              default: 0
+              description: Whether or not to show algo parameters. Set to 1 for yes, 0 for no.
+        responses:
+          '200':
+            description: Returns a list of available algos and a description of their behavior.
+            content: 
+              application/json:
+                schema:
+                  properties:
+                    accounts:
+                      type: array
+                      description: Contains all relevant algos for the contract.
+                      items:
+                        properties:
+                          name:
+                            type: string
+                            example: "Adaptive"
+                            description: Common name of the algo
+                          id: 
+                            type: string
+                            example: "Adaptive"
+                            description: Algo identifier used for requests.
+                          "parameters":
+                            items:
+                              properties:
+                                guiRank:
+                                  type: integer
+                                  example: 
+                                  description: Positional ranking for the algo. Used for Client Portal.
+
+                                defaultValue:
+                                  type: integer
+                                  example: 
+                                  description: Default parameter value.
+
+                                name:
+                                  type: integer
+                                  example: 
+                                  description: Parameter name.
+
+                                id:
+                                  type: integer
+                                  example: 
+                                  description: Parameter identifier for the algo.
+
+                                legalStrings:
+                                  type: array
+                                  example: ["Urgent", "Normal", "Patient"]
+                                  description: Allowed values for the parameter.
+
+                                required:
+                                  type: integer
+                                  example: 
+                                  description: States whether the parameter is required for the given algo order to place.
+
+                                valueClassName:
+                                  type: integer
+                                  example: 
+                                  description: Returns the variable type of the parameter.
+
+  /iserver/contract/{conid}/info:
+      get:
+        # Tags allow us to categorize requests, as shown in REDOC directly.
+        tags:
+        - Contracts
+        summary: Contract information by Contract ID
+        description: Requests full contract details for the given conid.
+        parameters:
+          - in: path
+            name: conid
+            required: true
+            schema:
+              example: "265598"
+              description: Contract identifier for the requested contract of interest.
+        responses:
+          '200':
+            description: Returns a list of available algos and a description of their behavior.
+            content: 
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/contractRules'
+                  
+
+  /iserver/contract/{conid}/info-and-rules:
+    get:
+        # Tags allow us to categorize requests, as shown in REDOC directly.
+        tags:
+        - Contracts
+        summary: Contract information by Contract ID
+        description: Requests full contract details for the given conid.
+        parameters:
+          - in: path
+            name: conid
+            required: true
+            schema:
+              example: "265598"
+              description: Contract identifier for the requested contract of interest.
+        responses:
+          '200':
+            description: Returns a list of available algos and a description of their behavior.
+            content: 
+              application/json:
+                schema:
+                  allOf:
+                    - $ref: '#/components/schemas/contractInfo'
+                    - properties:
+                        "rules":
+                          $ref: '#/components/schemas/contractRules'
+
+
+  # /iserver/currency/pairs
+  # /iserver/exchangerate 
+  # /iserver/secdef/bond-filters
+  # /iserver/secdef/info
+  
   /iserver/secdef/search:
     get:
       # Tags allow us to categorize requests, as shown in REDOC directly.
@@ -1154,7 +1336,14 @@ paths:
                 uniqueItems: true
                 items:
                   $ref: '#/components/schemas/secdefSearch'
-  
+
+  # /iserver/secdef/strikes
+  # /trsrv/all-conids
+  # /trsrv/futures
+  # /trsrv/secdef
+  # /trsrv/secdef/schedule
+  # /trsrv/stocks
+
   # FA Allocation Management
   /iserver/account/allocation/group:
     get:
@@ -1470,4 +1659,262 @@ components:
               exchange:
                 type: string
                 example: SMART;AMEX;BATS;BOX
+    contractRules:
+      properties:
+        algoEligible:
+          type: boolean
+          description: Indicates if the contract can trade algos or not.
+        overnightEligible:
+          type: boolean
+          description: Indicates if outsideRTH trading is permitted for the instrument
+        costReport:
+          type: boolean
+          description: Indicates whether or not a cost report has been requested (Client Portal only).
+        canTradeAcctIds:
+          type: array
+          description: Indicates permitted accountIDs that may trade the contract.
+          items:
+            example: "U1234567"
+        error:
+          type: string
+          description: If rules information can not be received for any reason, it will be expressed here.
+        orderTypes:
+          type: array
+          description: Indicates permitted order types for use with standard quantity trading.
+          example: ["limit","midprice","market","stop","stop_limit"]
+        ibAlgoTypes:
+          type: array
+          description: Indicates permitted algo types for use with the given contract.
+          example: ["limit","stop_limit","lit","trailing_stop_limit","relative","marketonclose","limitonclose"]
+        fraqTypes:
+          type: array
+          description: Indicates permitted order types for use with fractional trading.
+          example: ["limit"]
+        forceOrderPreview:
+          type: boolean
+          description: Indicates if the order preview is forced upon the user before submission.
+        cqtTypes:
+          type: array
+          description: Indicates accepted order types for use with cash quantity.
+          example: ["limit","market","stop","stop_limit","mit","lit","trailing_stop","trailing_stop_limit"]
+        orderDefaults: 
+          type: object
+          description: Indicates default order type for the given security type.
+          properties:
+            LMT:
+              properties:
+                LP:
+                  type: string
+                  description: Indicates a Limit Price default value.
+                  example: "549000.00"
+        orderTypesOutside:
+          type: array
+          description: Indicates permitted order types for use outside of regular trading hours.
+          example: ["limit","stop_limit","lit","trailing_stop_limit","relative"]
+        defaultSize:
+          type: integer
+          description: Default total quantity value for orders.
+          example: 100
+        cashSize:
+          type: integer
+          description: Default cash value quantity.
+          example: 0.0
+        sizeIncrement:
+          type: integer
+          description: Indicates quantity increase for the contract.
+          example: 1
+        tifTypes:
+          type: array
+          description: Indicates allowed tif types supported for the contract.
+          example: ["IOC/MARKET,LIMIT,RELATIVE,MARKETONCLOSE,MIDPRICE,LIMITONCLOSE,MKT_PROTECT,STPPRT,a","GTC/o,a","OPG/LIMIT,MARKET,a","GTD/o,a","DAY/o,a"]
+        tifDefaults:
+          type: object
+          description: >
+            Object containing details about your TIF value defaults.
+            These defaults can be viewed and modified in TWS’s within the Global Configuration.
+          properties:
+            TIF:
+              type: string
+              description: The default TIF type for orders.
+              example: DAY
+            SIZE:
+              type: string
+              description: The default size value for orders.
+              example: "100.00"
+        limitPrice:
+          type: integer
+          description: Default limit price for the given contract.
+          example: 549000.0
+        stopPrice:
+          type: integer
+          description: Default stop price for the given contract.
+          example: 549000.0
+        orderOrigination:
+          type: string
+          description: Order origin designation for US securities options and Options Clearing Corporation
+          default: null
+        preview:
+          type: boolean
+          description: Indicates if the order preview is required (for client portal only)
+        displaySize:
+          type: integer
+          description: Standard display increment rule for the instrument.
+          default: null
+        fraqInt:
+          type: integer
+          description: Indicates decimal places for fractional order size.
+          example: 0
+        cashCcy:
+          type: string
+          description: Indicates base currency for the instrument.
+          example: "USD"
+        cashQtyIncr:
+          type: integer
+          description: Indicates cash quantity increment rules.
+          example: 500
+        priceMagnifier:
+          type: integer
+          description: >
+            Signifies the magnifier of a given contract.
+            This is separate from the price multiplier, and will typically return ‘null’
+          default: null
+        negativeCapable:
+          type: boolean
+          description: Indicates if the value of the contract can be negative (true) or if it is always positive (false).
+          example: false
+        incrementType:
+          type: integer
+          description: Indicates the type of increment style.
+          example: 1
+        incrementRules:
+          type: array
+          description: Indicates increment rule values including lowerEdge and increment value.
+          items:
+            properties:
+              lowerEdge:
+                type: integer
+                description: If the current mark price of the instrument is at or above the lower edge, the given increment value is used for order prices.
+                example: 0.0
+              increment: 
+                type: integer
+                description: The price of the instrument must be submitted as a mulitple of the increment value.
+                example: 0.01
+        hasSecondary:
+          type: boolean
+        modTypes:
+          type: array
+          description: Lists the available order types supported when modifying the order.
+          example: ["stop","market"]
+        increment:
+          type: integer
+          description: Minimum increment values for prices
+          example: 0.01
+        incrementDigits:
+          type: integer
+          description: Number of decimal places to indicate the increment value.
+          example: 2
+    contractInfo:
+      properties:
+        cfi_code:
+          type: string
+          example: ""
+          description: Classification of Financial Instrument codes
+        symbol:
+          type: string
+          example: MHNG
+          description: Underlying symbol
+        cusip:
+          type: string
+          example: null
+          description: Returns the CUSIP for the given instrument. Only used in BOND trading.
+        expiry_full:
+          type: string
+          example: "202402"
+          description: Returns the expiration month of the contract.
+        con_id:
+          type: integer
+          example: 663134422
+          description: Indicates the contract identifier of the given contract.
+        maturity_date:
+          type: string
+          example: "20240126"
+          description: Indicates the final maturity date of the given contract.
+        industry:
+          type: string
+          example: "Computers"
+          description: Specific group of companies or businesses.
+        instrument_type:
+          type: string
+          example: "FUT"
+          description: Asset class of the instrument.
+        trading_class:
+          type: string
+          example: "MNG"
+          description: Designated trading class of the contract.
+        valid_exchanges:
+          type: string
+          example: "NYMEX"
+          description: Comma separated list of support exchanges or trading venues.
+        allow_sell_long:
+          type: boolean
+          example: false
+          description: Allowed to sell shares you own.
+        is_zero_commission_security:
+          type: boolean
+          example: false
+          description: Indicates if the contract supports zero commission trading.
+        local_symbol:
+          type: string
+          example: MNGG4
+          description: Contract’s symbol from primary exchange. For options it is the OCC symbol.
+        contract_clarification_type: 
+          type: string
+          example: null
+        classifier: 
+          type: string
+          example: null
+        currency:
+          type: string
+          example: USD
+          description: Base currency contract is traded in.
+        text:
+          type: string
+          example: MHNG FEB24 (1000)
+          description: Indicates the display name of the contract, as shown with Client Portal.
+        underlying_con_id:
+          type: integer
+          example: 663126427
+          description: Underlying contract identifier for the requested contract.
+        r_t_h:
+          type: boolean
+          example: false
+          description: Indicates if the contract can be traded outside regular trading hours or not.
+        multiplier:
+          type: string
+          example: "1000"
+          description: Indicates the multiplier of the contract.
+        underlying_issuer:
+          type: string
+          example: null
+          description: Indicates the issuer of the underlying.
+        contract_month:
+          type: string
+          example: null
+          description: Indicates the year and month the contract expires.
+        company_name:
+          type: string
+          example: "Micro Henry Hub Natural Gas"
+          description: Indicates the name of the company or index.
+        smart_available:
+          type: boolean
+          example: true
+          description: Indicates if the contract can be smart routed or not.
+        exchange:
+          type: string
+          example: NYMEX
+          description: Indicates the primary exchange for which the contract can be traded.
+        category:
+          type: string
+          example: Computers
+          description: Indicates the industry category of the instrument.
 
