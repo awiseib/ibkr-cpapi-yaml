@@ -22,7 +22,6 @@ servers:
 
 paths:
   # Alerts
-  
   /iserver/account/alert/{order_id}:
     get:
       tags:
@@ -660,7 +659,6 @@ paths:
                       example: 0
 
   # Accounts
-  
   /acesws/{accountId}/signatures-and-owners:
     get:
       tags:
@@ -731,7 +729,6 @@ paths:
 
   /iserver/account/pnl/partitioned:
       get:
-        # Tags allow us to categorize requests, as shown in REDOC directly.
         tags:
         - Accounts
         summary: Account Profit and Loss
@@ -777,7 +774,6 @@ paths:
   
   /iserver/account/search/{searchPattern}:
       get:
-        # Tags allow us to categorize requests, as shown in REDOC directly.
         tags:
         - Accounts
         summary: Search Dynamic Account
@@ -860,7 +856,6 @@ paths:
 
   /iserver/accounts:
       get:
-        # Tags allow us to categorize requests, as shown in REDOC directly.
         tags:
         - Session
         - Accounts
@@ -1066,7 +1061,6 @@ paths:
                     description: The account ID specified in the request body.
 
   # Contracts       
-  
   /iserver/contract/rules:
     post:
       tags:
@@ -1104,7 +1098,6 @@ paths:
 
   /iserver/contract/{conid}/algos:
       get:
-        # Tags allow us to categorize requests, as shown in REDOC directly.
         tags:
         - Contracts
         summary: Search Algo Params by Contract ID
@@ -1196,7 +1189,6 @@ paths:
 
   /iserver/contract/{conid}/info:
       get:
-        # Tags allow us to categorize requests, as shown in REDOC directly.
         tags:
         - Contracts
         summary: Contract information by Contract ID
@@ -1215,11 +1207,9 @@ paths:
               application/json:
                 schema:
                   $ref: '#/components/schemas/contractRules'
-                  
 
   /iserver/contract/{conid}/info-and-rules:
     get:
-        # Tags allow us to categorize requests, as shown in REDOC directly.
         tags:
         - Contracts
         summary: Contract information by Contract ID
@@ -1243,11 +1233,230 @@ paths:
                         "rules":
                           $ref: '#/components/schemas/contractRules'
 
+  /iserver/currency/pairs:
+      get:
+        tags:
+        - Contracts
+        summary: Search Algo Params by Contract ID
+        description: Obtains available currency pairs corresponding to the given target currency.
+        parameters:
+          - in: query
+            name: currency
+            required: true
+            schema:
+              example: "USD"
+              description: Specify the target currency you would like to receive official pairs of.
+        responses:
+          '200':
+            description: Returns a list of valid forex pairs for the given currency. The currency can apply as both the target or base currency. 
+            content: 
+              application/json:
+                schema:
+                  properties:
+                    {currency}:
+                      description: As opposed to an undefined return, the currency symbol will be listed.
+                      items:
+                        properties:
+                          symbol:
+                            type: string
+                            example: "EUR.USD"
+                            description: The official symbol of the given currency pair.
+                          conid: 
+                            type: integer
+                            example: 12087792
+                            description: The official contract identifier of the given currency pair.
+                          ccyPair:
+                            type: integer
+                            example: "EUR"
+                            description: Returns the symbol counterpart.
 
-  # /iserver/currency/pairs
-  # /iserver/exchangerate 
-  # /iserver/secdef/bond-filters
-  # /iserver/secdef/info
+  /iserver/exchangerate:
+      get:
+        tags:
+        - Contracts
+        summary: Currency Exchange Rate
+        description: Obtains the exchange rates of the currency pair.
+        parameters:
+          - in: query
+            name: target
+            required: true
+            schema:
+              example: "EUR"
+              description: Specify the quote currency to request data for.
+          - in: query
+            name: source
+            required: true
+            schema:
+              example: "USD"
+              description: Specify the base currency to request data for.
+        responses:
+          '200':
+            description: Successful requests return the currency exchange rate of the target currency value divided by the source currency.
+            content: 
+              application/json:
+                schema:
+                  properties:
+                    rate:
+                      type: integer
+                      example: 0.92042894
+                      description: Returns the exchange rate for the currency pair.
+
+  /iserver/secdef/bond-filters:
+      get:
+        tags:
+        - Contracts
+        summary: Search Bond Filter Information
+        description: Request a list of filters relating to a given Bond issuerID. The issuerId is retrieved from /iserver/secdef/search and can be used in /iserver/secdef/info?issuerId={issuerId} for retrieving conIds.
+        parameters:
+          - in: query
+            name: symbol
+            required: true
+            schema:
+              example: "BOND"
+              description: This should always be set to “BOND”
+          - in: query
+            name: issueId
+            required: true
+            schema:
+              example: "e1400715"
+              description: Specifies the issuerId value used to designate the bond issuer type.
+        responses:
+          '200':
+            description: Successful requests return the currency exchange rate of the target currency value divided by the source currency.
+            content: 
+              application/json:
+                schema:
+                  properties:
+                    bondFilters:
+                      type: array
+                      description: Contains all filters pertaining to the given issuerId.
+                      items:
+                        properties:
+                          displayText:
+                            type: string
+                            example: Maturity Date
+                            description: An identifier used to document returned options/values. This can be thought of as a key value.
+                          columnId:
+                            type: integer
+                            example: 27
+                            description: Used for user interfaces. Internal use only.
+                          options:
+                            type: array
+                            description: Contains all objects with values corresponding to the parent displayText key.
+                            items:
+                              properties:
+                                text:
+                                  type: string
+                                  example: Jan 2025
+                                  description: In some instances, a text value will be returned, which indicates the standardized value format such as plaintext dates, rather than solely numerical values.
+                                value:
+                                  type: string
+                                  example: 202501
+                                  description: Returns value directly correlating to the displayText key. This may include exchange, maturity date, issue date, coupon, or currency.
+
+  /iserver/secdef/info:
+      get:
+        tags:
+        - Contracts
+        summary: Search Bond Filter Information
+        description: Request a list of filters relating to a given Bond issuerID. The issuerId is retrieved from /iserver/secdef/search and can be used in /iserver/secdef/info?issuerId={issuerId} for retrieving conIds.
+        parameters:
+          - in: query
+            name: conid
+            required: true
+            schema:
+              example: "265598"
+              description: Contract identifier of the underlying. May also pass the final derivative conid directly.
+          - in: query
+            name: sectype
+            required: true
+            schema:
+              example: 
+              description: Security type of the requested contract of interest.
+          - in: query
+            name: month
+            schema:
+              example: 
+              description: Expiration month for the given derivative.
+          - in: query
+            name: exchange
+            schema:
+              example: 
+              description: Designate the exchange you wish to receive information for in relation to the contract.
+          - in: query
+            name: strike
+            schema:
+              example: 
+              description: Set the strike price for the requested contract details
+          - in: query
+            name: right
+            schema:
+              enum: ["C", "P"] 
+              description: >
+                Set the right for the given contract.
+                * `C` - for Call options.
+                * `P` - for Put options.
+          - in: query
+            name: issuerId
+            schema:
+              example: “e1234567”
+              description: Set the issuerId for the given bond issuer type.
+        responses:
+          '200':
+            description: Successful response containing a contract's security definition.
+            content: 
+              application/json:
+                schema:
+                  properties:
+                    conid:
+                      type: integer
+                      example: 609545163
+                      description: Contract Identifier of the given contract.
+                    ticker: 
+                      type: string
+                      example: "ES"
+                      description: Ticker symbol for the given contract
+                    secType:
+                      type: string
+                      example: "FOP"
+                      description: Security type for the given contract.
+                    listingExchange:
+                      type: string
+                      example: null
+                      description: Primary listing exchange for the given contract.
+                    exchange:
+                      type: string
+                      example: "CME"
+                      description: Exchange requesting data for.
+                    companyName:
+                      type: string
+                      example: "E-mini S&P 500"
+                      description: Name of the company for the given contract.
+                    currency: 
+                      type: string
+                      example: "USD"
+                      description: Traded currency allowed for the given contract.
+                    validExchanges: 
+                      type: string
+                      example: "CME"
+                      description: Series of all valid exchanges the contract can be traded on in a single comma-separated string.
+                    priceRendering: 
+                      default: "null"
+                    maturityDate: 
+                      type: string
+                      example: "20240216"
+                      description: Date of expiration for the given contract.
+                    right:
+                      type: string
+                      enum: ["P", "C"]
+                      description: >
+                        Set the right for the given contract.
+                        * `C` - for Call options.
+                        * `P` - for Put options.
+                    strike: 
+                      type: integer
+                      example: 4900.0
+                      description: Returns the given strike value for the given contract.
   
   /iserver/secdef/search:
     get:
