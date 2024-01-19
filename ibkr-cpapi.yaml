@@ -1150,6 +1150,7 @@ paths:
                             example: "Adaptive"
                             description: Algo identifier used for requests.
                           "parameters":
+                            type: array
                             items:
                               properties:
                                 guiRank:
@@ -1254,6 +1255,7 @@ paths:
                 schema:
                   properties:
                     {currency}:
+                      type: array
                       description: As opposed to an undefined return, the currency symbol will be listed.
                       items:
                         properties:
@@ -1546,12 +1548,477 @@ paths:
                 items:
                   $ref: '#/components/schemas/secdefSearch'
 
-  # /iserver/secdef/strikes
-  # /trsrv/all-conids
-  # /trsrv/futures
-  # /trsrv/secdef
-  # /trsrv/secdef/schedule
-  # /trsrv/stocks
+  /iserver/secdef/strikes:
+    get:
+      tags:
+      - Contracts
+      summary: Search Bond Filter Information
+      description: Request a list of filters relating to a given Bond issuerID. The issuerId is retrieved from /iserver/secdef/search and can be used in /iserver/secdef/info?issuerId={issuerId} for retrieving conIds.
+      parameters:
+        - in: query
+          name: conid
+          required: true
+          schema:
+            example: "265598"
+            description: Contract identifier of the underlying. May also pass the final derivative conid directly.
+        - in: query
+          name: sectype
+          required: true
+          schema:
+            example: OPT
+            description: Security type of the requested contract of interest.
+        - in: query
+          name: month
+          required: true
+          schema:
+            example: JAN24
+            description: Expiration month for the given derivative.
+        - in: query
+          name: exchange
+          schema:
+            example: NASDAQ
+            default: SMART
+            description: Exchange from which derivatives should be retrieved from.
+      responses:
+        '200':
+          description: Successful response containing a contract's security definition.
+          content: 
+            application/json:
+              schema:
+                properties:
+                  call:
+                    type: array
+                    example: [185.0,190.0,195.0,200.0]
+                    description: Array containing a series of comma separated values representing potential call strikes for the instrument.
+                  put:
+                    type: array
+                    example: [185.0,190.0,195.0,200.0]
+                    description: Array containing a series of comma separated values representing potential put strikes for the instrument.
+                    
+  /trsrv/all-conids:
+    get:
+      tags:
+      - Contracts
+      summary: All Conids by Exchange
+      description: Send out a request to retrieve all contracts made available on a requested exchange. This returns all contracts that are tradable on the exchange, even those that are not using the exchange as their primary listing.
+      parameters:
+        - in: query
+          name: exchange
+          required: true
+          schema:
+            example: AMEX
+            description: Exchange from which derivatives should be retrieved from.
+      responses:
+        '200':
+          description: Successful response containing a contract's security definition.
+          content: 
+            application/json:
+              schema:
+                type: array
+                items:
+                  properties:
+                    ticker:
+                      type: string
+                      example: "BMO"
+                      description: Returns the ticker symbol of the contract.
+                    conid:
+                      type: integer
+                      example: 5094
+                      description: Returns the contract identifier of the returned contract.
+                    exchange:
+                      type: string
+                      example: "NYSE"
+                      description: Returns the primary exchange of the returned contract.
+                    
+  /trsrv/futures:
+    get:
+      tags:
+      - Contracts
+      summary: Future  Security Definition By Symbol
+      description: Returns a list of non-expired future contracts for given symbol(s)
+      parameters:
+        - in: query
+          name: symbols
+          required: true
+          schema:
+            example: ES,MES
+            description: Indicate the symbol(s) of the underlier you are trying to retrieve futures on. Accepts comma delimited string of symbols.
+      responses:
+        '200':
+          description: Successful response containing a contract's security definition.
+          content: 
+            application/json:
+              schema:
+                properties:
+                  {symbol}: 
+                    type: array
+                    description: >
+                      Displayed as the string of your symbol
+                      Contains a series of objects for each symbol that matches the requested.
+                    items:
+                      properties:
+                        symbol:
+                          type: string
+                          example: ES
+                          description: The requested symbol value.
+                        conid:
+                          type: integer
+                          example: 495512552
+                          description: Contract identifier for the specific symbol
+                        underlyingConid:
+                          type: integer
+                          example: 11004968
+                          description: Contract identifier for the future’s underlying contract.
+                        expirationDate:
+                          type: integer
+                          example: 20231215
+                          description: Expiration date of the specific future contract.
+                        ltd:
+                          type: integer
+                          example: 20231214
+                          description: Last trade date of the future contract.
+                        shortFuturesCutOff:
+                          type: integer
+                          example: 20231214
+                          description: Represents the final day for contract rollover for shorted futures.
+                        longFuturesCutOff:
+                          type: integer
+                          example: 20231214
+                          description: Represents the final day for contract rollover for long futures.
+  
+  /trsrv/secdef:
+    get:
+      tags:
+      - Contracts
+      summary: Search the security definition by Contract ID
+      description: Returns a list of security definitions for the given conids.
+      parameters:
+        - in: query
+          name: conids
+          required: true
+          schema:
+            example: 265598,8314
+            description: A comma separated series of contract IDs.
+      responses:
+        '200':
+          description: Successful response containing a contract's security definition.
+          content: 
+            application/json:
+              schema:
+                properties:
+                  secdef: 
+                    type: array
+                    description: Returns matching security definitions for the conid.
+                    items:
+                      properties:
+                        conid: 
+                          type: integer
+                          example: 265598
+                          description: Returns the conID
+                        currency: 
+                          type: string
+                          example: "USD"
+                          description: Returns the traded currency for the contract.
+                        time: 
+                          type: integer
+                          example: 28
+                          description: Returns amount of time in ms to generate the data.
+                        chineseName: 
+                          type: string
+                          example: "&#x82F9;&#x679C;&#x516C;&#x53F8;"
+                          description: Returns the Chinese characters for the symbol.
+                        allExchanges: 
+                          type: string
+                          example: "AMEX,NYSE,CBOE,PHLX,CHX,ARCA,ISLAND,ISE,IDEAL,NASDAQQ,NASDAQ,DRCTEDGE,BEX,BATS,NITEECN,EDGEA,CSFBALGO,JEFFALGO,NYSENASD,PSX,BYX,ITG,PDQ,IBKRATS,CITADEL,NYSEDARK,MIAX,IBDARK,CITADELDP,NASDDARK,IEX,WEDBUSH,SUMMER,WINSLOW,FINRA,LIQITG,UBSDARK,BTIG,VIRTU,JEFF,OPCO,COWEN,DBK,JPMC,EDGX,JANE,NEEDHAM,FRACSHARE,RBCALGO,VIRTUDP,BAYCREST,FOXRIVER,MND,NITEEXST,PEARL,GSDARK,NITERTL,NYSENAT,IEXMID,HRT,FLOWTRADE,HRTDP,JANELP,PEAK6,IMCDP,CTDLZERO,HRTMID,JANEZERO,HRTEXST,IMCLP,LTSE,SOCGENDP,MEMX,INTELCROS,VIRTUBYIN,JUMPTRADE,NITEZERO,TPLUS1,XTXEXST,XTXDP,XTXMID,COWENLP,BARCDP,JUMPLP,OLDMCLP,RBCCMALP,WALLBETH,IBEOS,JONES,GSLP,BLUEOCEAN,USIBSILP,OVERNIGHT,JANEMID,IBATSEOS,HRTZERO,VIRTUALGO,VIRTUMID"
+                          description: Returns a series of exchanges the given symbol can trade on.
+                        listingExchange: 
+                          type: string
+                          example: NASDAQ
+                          description: Returns the primary or listing exchange the contract is hosted on.
+                        countryCode: 
+                          type: string
+                          example: US
+                          description: Returns the country code the contract is traded on.
+                        name: 
+                          type: string
+                          example: "APPLE INC"
+                          description: Returns the comapny name.
+                        assetClass: 
+                          type: string
+                          example: STK
+                          description: Returns the asset class or security type of the contract.
+                        expiry: 
+                          type: string
+                          example: null
+                          description: Returns the expiry of the contract. Returns null for non-expiry instruments.
+                        lastTradingDay: 
+                          type: string
+                          example: null
+                          description: Returns the last trading day of the contract.
+                        group: 
+                          type: string
+                          example: Computers
+                          description: Returns the group or industry the contract is affilated with.
+                        putOrCall: 
+                          type: string
+                          example: null
+                          description: Returns if the contract is a Put or Call option.
+                        sector: 
+                          type: string
+                          example: Technology
+                          description: Returns the contract’s sector.
+                        sectorGroup: 
+                          type: string
+                          example: Computers
+                          description: Returns the sector’s group.
+                        strike: 
+                          type: string
+                          example: "0"
+                          description: Returns the strike of the contract.
+                        ticker: 
+                          type: string
+                          example: "AAPL"
+                          description: Returns the ticker symbol of the traded contract.
+                        undConid: 
+                          type: integer
+                          example: 0
+                          description: Returns the contract’s underlyer.
+                        multiplier: 
+                          type: integer
+                          example: 0.0
+                          description: Returns the contract multiplier.
+                        type: 
+                          type: string
+                          example: Common
+                          description: Returns stock type.
+                        hasOptions: 
+                          type: boolean
+                          example: 
+                          description: Returns if contract has tradable options contracts.
+                        fullName: 
+                          type: string
+                          example: 
+                          description: Returns symbol name for requested contract.
+                        isUS: 
+                          type: boolean
+                          example: 
+                          description: Returns if the contract is US based or not.
+                        incrementRules:
+                          type: array
+                          description: Indicates increment rule values including lowerEdge and increment value.
+                          items:
+                            properties:
+                              lowerEdge:
+                                type: integer
+                                description: If the current mark price of the instrument is at or above the lower edge, the given increment value is used for order prices.
+                                example: 0.0
+                              increment: 
+                                type: integer
+                                description: The price of the instrument must be submitted as a mulitple of the increment value.
+                                example: 0.01
+                        displayRule: 
+                          type: array
+                          description: Returns rules regarding incrementation for order placement. Not functional for all exchanges. Please see /iserver/contract/rules for more accurate rule details.
+                          items:
+                            properties:
+                              magnification:
+                                type: integer
+                                example: 0
+                                description: If the displayed contract information is multiplied based on a given magnitude, the value will be reflected here.
+                              displayRuleStep:
+                                type: array
+                                items:
+                                  properties:
+                                    decimalDigits:
+                                      type: integer
+                                      example: 2
+                                      description: Displays the total number of digits used after the decimal value.
+                                    lowerEdge:
+                                      type: integer
+                                      description: The lowerEdge display value to correspond to increment rules.
+                                      example: 0.0
+                                    wholeDigits:
+                                      type: integer
+                                      example: 4
+                                      description: Displays valid display prices for before and after the decimal value.
+                        isEventContract: 
+                          type: boolean
+                          example: 
+                          description: Returns if the contract is an event contract or not.
+                        pageSize: 
+                          type: integer
+                          example: 
+                          description: Returns the content size of the request.
+  
+  /trsrv/secdef/schedule:
+    get:
+      tags:
+      - Contracts
+      summary: Trading Schedule by Symbol
+      description: Returns the trading schedule up to a month for the requested contract.
+      parameters:
+        - in: query
+          name: assetClass
+          required: true
+          schema:
+            enum: [STK, OPT, FUT, CFD, WAR, SWP, FND, BND, ICS]
+            description: >
+              Specify the security type of the given contract.
+              Valid asset classes are:
+               * `STK` - Stock
+               * `OPT` - Option
+               * `FUT` - Future
+               * `CFD` - Contract for Difference
+               * `WAR` - Warrant
+               * `SWP` - Forex
+               * `FND` - Mutual Fund
+               * `BND` - Bond
+               * `ICS` - Inter-Commodity Spread
+        - in: query
+          name: symbol
+          required: true
+          schema:
+            example: AAPL
+            description: Specify the symbol for your contract.
+        - in: query
+          name: exchange
+          schema:
+            example: NASDAQ
+            description: Specify the primary exchange of your contract.
+        - in: query
+          name: exchangeFilter
+          schema:
+            example: AMEX,NASDAQ,NYSE
+            description: Specify all exchanges you want to retrieve data from.
+      responses:
+        '200':
+          description: Successful response containing a contract's security definition.
+          content: 
+            application/json:
+              schema:
+                items:
+                  properties:
+                    id: 
+                      type: string
+                      example: p102082
+                      description: Exchange parameter id
+                    tradeVenueId: 
+                      type: string
+                      example: v13133
+                      description: Reference on a trade venue of given exchange parameter
+                    timezone: 
+                      type: string
+                      example: "America/New_York"
+                      description: References the time zone corresponding to the listed dates and times.
+                    schedules:
+                      type: array
+                      description: Always contains at least one ‘tradingTime’ and zero or more ‘sessionTime’ tags
+                      items:
+                        properties:
+                          clearingCycleEndTime: 
+                            type: string
+                            example: 
+                            description: End time of clearing cycle.
+                          tradingScheduleDate: 
+                            type: string
+                            example: 
+                            description: > 
+                              Date of the clearing schedule.
+                              20000101 stands for any Sat, 20000102 stands for any Sun, … 20000107 stands for any Fri. 
+                              Any other date stands for itself.
+                          sessions: 
+                            type: array
+                            description: Lists the avialble trading sessions. This displays the regular trading hours. If the LIQUID hours differs from the total trading day then a separate ‘session’ tag is returned.
+                            items:
+                              properties:
+                                openingTime: 
+                                  type: string
+                                  example: "0930"
+                                  description: Opening date time of the session.
+                                closingTime: 
+                                  type: string
+                                  example: "1600"
+                                  description: Closing date time of the sesion.
+                                prop: 
+                                  type: string
+                                  example: "LIQUID"
+                                  description: If the whole trading day is considered LIQUID then the value ‘LIQUID’ is returned.
+                          tradingTimes:
+                            type: array
+                            description: Object containing trading times.
+                            items:
+                              properties:
+                                openingTime: 
+                                  type: string
+                                  example: "0400"
+                                  description: Opening time of the trading day.
+                                closingTime: 
+                                  type: string
+                                  example: "2000"
+                                  description: Closing time of the trading day.
+                                cancelDayOrders: 
+                                  type: string
+                                  example: "Y"
+                                  description: Cancel time for day orders.
+
+  /trsrv/stocks:
+    get:
+      tags:
+      - Contracts
+      summary: Stock Security Definition By Symbol
+      description: Returns an object contains all stock contracts for given symbol(s)
+      parameters:
+        - in: query
+          name: symbols
+          required: true
+          schema:
+            example: AAPL,IBKR
+            description: Comma-separated list of stock symbols. Symbols must contain only capitalized letters.
+      responses:
+        '200':
+          description: Successful response containing a contract's security definition.
+          content: 
+            application/json:
+              schema:
+                properties:
+                  {symbol}: 
+                    type: array
+                    description: >
+                      Displayed as the string of your symbol
+                      Contains a series of objects for each symbol that matches the requested.
+                    items:
+                      properties:
+                        name: 
+                          type: string
+                          example: APPLE INC
+                          description: Full company name for the given contract.
+                        chineseName: 
+                          type: string
+                          example: "&#x82F9;&#x679C;&#x516C;&#x53F8;"
+                          description: Chinese name for the given company as unicode.
+                        assetClass: 
+                          type: string
+                          example: "STK"
+                          description: Asset class for the given company.
+                        contracts: 
+                          type: array
+                          description: >
+                            A series of arrays pertaining to the same company listed by “name”.
+                            Typically differentiated based on currency of the primary exchange.
+                          items:
+                            properties:
+                              conid: 
+                                type: integer
+                                example: 265598
+                                description: Contract ID for the specific contract.
+                              exchange: 
+                                type: string
+                                example: "NASDAQ"
+                                description: Primary exchange for the given contract.
+                              isUS: 
+                                type: boolean
+                                example: true
+                                description: States whether the contract is hosted in the United States or not.
 
   # FA Allocation Management
   /iserver/account/allocation/group:
