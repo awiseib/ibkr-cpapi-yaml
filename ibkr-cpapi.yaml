@@ -727,6 +727,638 @@ paths:
                           items:
                             example: John Smith
 
+  /iserver/account/{accountId}/summary:
+      get:
+        tags:
+        - Accounts
+        summary: General Account Summary
+        description: Provides a general overview of the account details such as balance values.
+        parameters:
+          - in: path
+            name: accountId
+            schema:
+              type: string
+              description: Pass the account identifier to receive information for.
+              example: U1234567
+            required: true
+        responses:
+          '200':
+            description: Successful return contianing an array of at-a-glance account details.
+            content: 
+              application/json:
+                schema:
+                  properties:
+                    accountType:
+                      type: string
+                      example: ""
+                      description: Describes the unique account type. For standard individual accounts, an empty string is returned.
+                    status:
+                      type: string
+                      example: ""
+                      description: If the account is currently non-tradeable, a status message will be dispalyed.
+                    balance:
+                      type: integer
+                      example: 253416.0
+                      description: Returns the total account balance.
+                    SMA:
+                      type: integer
+                      example: 0.0
+                      description: Simple Moving Average of the account.
+                    buyingPower:
+                      type: integer
+                      example: 253416.0
+                      description: Total buying power available for the account.
+                    availableFunds:
+                      type: integer
+                      example: 253416.0
+                      description: "The amount of equity you have available for trading. For both the Securities and Commodities segments, this is calculated as: Equity with Loan Value – Initial Margin."
+                    excessLiquidity:
+                      type: integer
+                      example: 253416.0
+                      description: The amount of cash in excess of the usual requirement in your account. 
+                    netLiquidationValue:
+                      type: integer
+                      example: 592416.0
+                      description: The basis for determining the price of the assets in your account.
+                    equityWithLoanValue:
+                      type: integer
+                      example: 592416.0
+                      description: The basis for determining whether you have the necessary assets to either initiate or maintain security assets.
+                    regTLoan:
+                      type: integer
+                      example: 0.0
+                      description: The Federal Reserve Board regulation governing the amount of credit that broker dealers may extend to clients who borrow money to buy securities on margin.
+                    securitiesGVP:
+                      type: integer
+                      example: 2300.0
+                      description: Absolute value of the Long Stock Value + Short Stock Value + Long Option Value + Short Option Value + Fund Value.
+                    totalCashValue:
+                      type: integer
+                      example: 592416.0
+                      description: >
+                        Cash recognized at the time of trade + futures P&L. This value reflects real-time currency positions, including:
+                         *  Trades executed directly through the FX market.
+                         *  Trades executed as a result of automatic IB conversions, which occur when you trade a product in a non-base currency.
+                         *  Trades deliberately executed to close non-base currency positions using the FXCONV destination.
+                    accruedInterest:
+                      type: integer
+                      example: 0.0
+                      description: Accrued interest is the interest accruing on a security since the previous coupon date. If a security is sold between two payment dates, the buyer usually compensates the seller for the interest accrued, either within the price or as a separate payment.
+                    regTMargin:
+                      type: integer
+                      example: 0.0
+                      description: The initial margin requirements calculated under US Regulation T rules for both the securities and commodities segment of your account.
+                    initialMargin:
+                      type: integer
+                      example: 1060615.0
+                      description: The available initial margin for the account.
+                    maintenanceMargin:
+                      type: integer
+                      example: 592416.0
+                      description: The available maintenance margin for the account.
+                    cashBalances:
+                      description: An array containing balance information for all currencies held by the account.
+                      items:
+                        properties:
+                          currency:
+                            type: string
+                            example: AUD
+                            description: >
+                              The currency the values represent.
+                              Base currency represented as "Total (in {BaseCurrency})"
+                          balance:
+                            type: integer
+                            example: 210708.0
+                            description: The total available currency held in the account.
+                          settledCash:
+                            type: integer
+                            example: 210708.0
+                            description: The available settled cash that can be withdrawn from the account.
+
+  /iserver/account/{accountId}/summary/available_funds:
+    get:
+      tags:
+      - Accounts
+      summary: Summary of Available Funds
+      description: Provides a summary specific for avilable funds giving more depth than the standard /summary endpoint.
+      parameters:
+        - in: path
+          name: accountId
+          schema:
+            type: string
+            description: Pass the account identifier to receive information for.
+            example: U1234567
+          required: true
+      responses:
+        '200':
+          description: Indicates a successful return of available funds.
+          content:
+            application/json:
+              schema:
+                properties:
+                  total:
+                    type: object
+                    description: Contains a combined overview of Commidity and Security fund values.
+                    properties:
+                      current_available:
+                        type: string
+                        example: "215,117,339 USD"
+                        description: Describes currently avialable funds in your account for trading.
+                      current_excess:
+                        type: string
+                        example: "215,584,781 USD"
+                        description: Describes total value of the account.
+                      Prdctd Pst-xpry Excss:
+                        type: string
+                        example: "0 USD"
+                        description: Displays predicted post-expiration account value.
+                      Lk Ahd Avlbl Fnds:
+                        type: string
+                        example: "214,921,585 USD"
+                        description: This value reflects your available funds at the next margin change.
+                      Lk Ahd Excss Lqdty:
+                        type: string
+                        example: "215,567,237 USD"
+                        description: >
+                          * `Securities` - Equity with loan value. Look ahead maintenance margin.
+                           * `Commodities` - Net Liquidation value. Look ahead maintenance margin.
+                      overnight_available:
+                        type: string
+                        example: "214,921,585 USD"
+                        description: Describes available funds for overnight trading.
+                      overnight_excess:
+                        type: string
+                        example: "215,567,237 USD"
+                        description: >
+                          Overnight refers to the window of time after the local market trading day is closed. 
+                            * `Securities` - Equivalent to regular trading hours. 
+                             * `Commodities` - Commodities Net Liquidation value. Overnight Maintenance margin.
+                      buying_power:
+                        type: string
+                        example: "1,436,887,744 USD"
+                        description: Describes the total buying power of the account including existing balance with margin.
+                      leverage:
+                        type: string
+                        example: "n/a"
+                        description: Describes the total combined leverage.
+                      Lk Ahd Nxt Chng:
+                        type: string
+                        example: "@ 16:00:00"
+                        description: Describes when the next 'Look Ahead' calculation will take place.
+                      day_trades_left:
+                        type: string
+                        example: "Unlimited"
+                        description: Describes the number of trades remaining before flagging the Pattern Day Trader status. "Unlimited" is used for existing Pattern Day Traders.
+                        
+                  commodities:
+                    type: object
+                    description: Contains commodities specific fund values.
+                    properties:
+                      current_available:
+                        type: string
+                        example: "215,117,339 USD"
+                        description: Describes currently avialable funds in your account for trading.
+                      current_excess:
+                        type: string
+                        example: "215,584,781 USD"
+                        description: Describes total value of the account.
+                      Prdctd Pst-xpry Excss:
+                        type: string
+                        example: "0 USD"
+                        description: Displays predicted post-expiration account value.
+                      Lk Ahd Avlbl Fnds:
+                        type: string
+                        example: "214,921,585 USD"
+                        description: This value reflects your available funds at the next margin change.
+                      overnight_available:
+                        type: string
+                        example: "214,921,585 USD"
+                        description: Describes available funds for overnight trading.
+                      overnight_excess:
+                        type: string
+                        example: "215,567,237 USD"
+                        description: >
+                          Overnight refers to the window of time after the local market trading day is closed. 
+                            * `Securities` - Equivalent to regular trading hours. 
+                             * `Commodities` - Commodities Net Liquidation value. Overnight Maintenance margin.
+                  securities:
+                    type: object
+                    description: Contains an overview of Security specific fund values.
+                    properties:
+                      current_available:
+                        type: string
+                        example: "215,117,339 USD"
+                        description: Describes currently avialable funds in your account for trading.
+                      current_excess:
+                        type: string
+                        example: "215,584,781 USD"
+                        description: Describes total value of the account.
+                      Prdctd Pst-xpry Excss:
+                        type: string
+                        example: "0 USD"
+                        description: Displays predicted post-expiration account value.
+                      Lk Ahd Avlbl Fnds:
+                        type: string
+                        example: "214,921,585 USD"
+                        description: This value reflects your available funds at the next margin change.
+                      Lk Ahd Excss Lqdty:
+                        type: string
+                        example: "215,567,237 USD"
+                        description: >
+                          * `Securities` - Equity with loan value. Look ahead maintenance margin.
+                           * `Commodities` - Net Liquidation value. Look ahead maintenance margin.
+                      overnight_available:
+                        type: string
+                        example: "214,921,585 USD"
+                        description: Describes available funds for overnight trading.
+                      overnight_excess:
+                        type: string
+                        example: "215,567,237 USD"
+                        description: >
+                          Overnight refers to the window of time after the local market trading day is closed. 
+                            * `Securities` - Equivalent to regular trading hours. 
+                             * `Commodities` - Commodities Net Liquidation value. Overnight Maintenance margin.
+                      leverage:
+                        type: string
+                        example: "n/a"
+                        description: Describes the total combined leverage.
+            
+  /iserver/account/{accountId}/summary/balances:
+    get:
+      tags:
+      - Accounts
+      summary: Summary of Account Balances
+      parameters:
+        - in: path
+          name: accountId
+          schema:
+            type: string
+            description: Pass the account identifier to receive information for.
+            example: U1234567
+          required: true
+      responses:
+        '200':
+          description: Indicates a successful return of available funds.
+          content:
+            application/json:
+              schema:
+                properties:
+                  total: 
+                    type: object
+                    description: Contains total balance details for the account.
+                    properties: 
+                      net_liquidation: 
+                        type: string
+                        example: "216,791,746 USD"
+                        description: The basis for determining the price of the assets in your account.
+                      "Nt Lqdtn Uncrtnty": 
+                        type: string
+                        example: "296 USD"
+                        description: Displays the uncertainty of the Net Liquidating Value associated with after-hours price changes.
+                      equity_with_loan: 
+                        type: string
+                        example: "215,962,132 USD"
+                        description: >
+                          * `Cash Accounts` Settled cash
+                           * `Margin Accounts` Total cash value + stock value + bond value + fund value + European & Asian options value.
+                      "Prvs Dy Eqty Wth Ln Vl": 
+                        type: string
+                        example: "191,348,083 USD"
+                        description: The accounts equity balance including loan value.
+                      sec_gross_pos_val: 
+                        type: string
+                        example: "1,923,059 USD"
+                        description: Equals the sum of the absolute value of all positions except cash, index futures and US treasuries.
+                      cash: 
+                        type: string
+                        example: "214,170,200 USD"
+                        description: Total cash balance in the account
+                      "MTD Interest": 
+                        type: string
+                        example: "787,931 USD"
+                        description: Total Month-to-date interest.
+                      "Pndng Dbt Crd Chrgs": 
+                        type: string
+                        example: "0 USD"
+                        description: Any pending charges for the IBKR debit account.
+                      
+                  commodities: 
+                    type: object
+                    description: Contains Commodity-specific balance details.
+                    properties: 
+                      net_liquidation: 
+                        type: string
+                        example: "24,696,943 USD"
+                        description: The basis for determining the price of the assets in your account.
+                      equity_with_loan: 
+                        type: string
+                        example: "24,655,654 USD"
+                        description: >
+                          * `Cash Accounts` Settled cash
+                           * `Margin Accounts` Total cash value + stock value + bond value + fund value + European & Asian options value.
+                      cash: 
+                        type: string
+                        example: "24,696,943 USD"
+                        description: Total cash balance in the account
+                      "MTD Interest": 
+                        type: string
+                        example: "0 USD"
+                        description: Total Month-to-date interest.
+                      "Pndng Dbt Crd Chrgs": 
+                        type: string
+                        example: "0 USD"
+                        description: Any pending charges for the IBKR debit account.
+                  
+                  securities: 
+                    type: object
+                    description: Contains Security-specific balance details.
+                    properties: 
+                      net_liquidation: 
+                        type: string
+                        example: "192,094,803 USD"
+                        description: The basis for determining the price of the assets in your account.
+                      equity_with_loan: 
+                        type: string
+                        example: "191,306,479 USD"
+                        description: >
+                          * `Cash Accounts` Settled cash
+                           * `Margin Accounts` Total cash value + stock value + bond value + fund value + European & Asian options value.
+                      Prvs Dy Eqty Wth Ln Vl: 
+                        type: string
+                        example: "191,348,083 USD"
+                        description: The accounts equity balance including loan value.
+                      sec_gross_pos_val: 
+                        type: string
+                        example: "1,923,059 USD"
+                        description: Equals the sum of the absolute value of all positions except cash, index futures and US treasuries.
+                      cash: 
+                        type: string
+                        example: "189,473,257 USD"
+                        description: Total cash balance in the account
+                      MTD Interest: 
+                        type: string
+                        example: "787,931 USD"
+                        description: Total Month-to-date interest.
+                      Pndng Dbt Crd Chrgs: 
+                        type: string
+                        example: "0 USD"
+                        description: Any pending charges for the IBKR debit account.
+  
+  /iserver/account/{accountId}/summary/margins:
+    get:
+      tags:
+      - Accounts
+      summary: Summary of Account Margin
+      parameters:
+        - in: path
+          name: accountId
+          schema:
+            type: string
+            description: Pass the account identifier to receive information for.
+            example: U1234567
+          required: true
+      responses:
+        '200':
+          description: Indicates a success request to receive margin balance values.
+          content:
+            application/json:
+              schema:
+                properties:
+                  total:
+                    properties:
+                      current_initial: 
+                        type: string
+                        example: "1,012,700 USD"
+                        description: The minimum amount required to open a new position.
+                      Prdctd Pst-xpry Mrgn @ Opn: 
+                        type: string
+                        example: "0 USD"
+                        description: Provides a projected “at expiration” margin value based on the soon-to-expire contracts in your portfolio. 
+                      current_maint: 
+                        type: string
+                        example: "558,038 USD"
+                        description: The amount of equity required to maintain your positions.
+                      projected_liquidity_inital_margin: 
+                        type: string
+                        example: "1,203,131 USD"
+                        description: Provides a projected "liquid" initial margin value based on account liquidation value.
+                      Prjctd Lk Ahd Mntnnc Mrgn: 
+                        type: string
+                        example: "575,757 USD"
+                        description: >
+                          If it is 3:00 pm ET, the next calculation you’re looking ahead to is after the close, or the Overnight Initial Margin. If it’s 3:00 am ET, the next calculation will be at the market’s open.
+                           * `Securities` – Projected maintenance margin requirement as of next period’s margin change, in the base currency of the account. 
+                           * `Commodities` – Maintenance margin requirement as of next period’s margin change in the base currency of the account based on current margin requirements, which are subject to change. This value depends on when you are viewing your margin requirements. 
+                      projected_overnight_initial_margin: 
+                        type: string
+                        example: "1,203,131 USD"
+                        description: >
+                          Overnight refers to the window of time after the local market trading day is closed. 
+                            * Securities – Projected overnight initial margin requirement in the base currency of the account. 
+                            * Commodities – Overnight initial margin requirement in the base currency of the account based on current margin requirements, which are subject to change.
+                      Prjctd Ovrnght Mntnnc Mrgn: 
+                        type: string
+                        example: "575,757 USD"
+                        description: >
+                          Overnight refers to the window of time after the local market trading day is closed. 
+                            * `Securities` – Projected overnight maintenance margin requirement in the base currency of the account. 
+                            * `Commodities` – Overnight maintenance margin requirement in the base currency of the account based on current margin requirements, which are subject to change.
+                  commodities:
+                    properties:
+                      current_initial: 
+                        type: string
+                        example: "444,340 USD"
+                        description: The minimum amount required to open a new position.
+                      Prdctd Pst-xpry Mrgn @ Opn: 
+                        type: string
+                        example: "0 USD"
+                        description: Provides a projected “at expiration” margin value based on the soon-to-expire contracts in your portfolio. 
+                      current_maint: 
+                        type: string
+                        example: "41,343 USD"
+                        description: The amount of equity required to maintain your positions.
+                      projected_liquidity_inital_margin: 
+                        type: string
+                        example: "634,771 USD"
+                        description: Provides a projected "liquid" initial margin value based on account liquidation value.
+                      Prjctd Lk Ahd Mntnnc Mrgn: 
+                        type: string
+                        example: "59,061 USD"
+                        description: >
+                          If it is 3:00 pm ET, the next calculation you’re looking ahead to is after the close, or the Overnight Initial Margin. If it’s 3:00 am ET, the next calculation will be at the market’s open.
+                           * `Securities` – Projected maintenance margin requirement as of next period’s margin change, in the base currency of the account. 
+                           * `Commodities` – Maintenance margin requirement as of next period’s margin change in the base currency of the account based on current margin requirements, which are subject to change. This value depends on when you are viewing your margin requirements. 
+                      projected_overnight_initial_margin: 
+                        type: string
+                        example: "634,771 USD"
+                        description: >
+                          Overnight refers to the window of time after the local market trading day is closed. 
+                            * Securities – Projected overnight initial margin requirement in the base currency of the account. 
+                            * Commodities – Overnight initial margin requirement in the base currency of the account based on current margin requirements, which are subject to change.
+                      Prjctd Ovrnght Mntnnc Mrgn: 
+                        type: string
+                        example: "59,061 USD"
+                        description: >
+                          Overnight refers to the window of time after the local market trading day is closed. 
+                            * `Securities` – Projected overnight maintenance margin requirement in the base currency of the account. 
+                            * `Commodities` – Overnight maintenance margin requirement in the base currency of the account based on current margin requirements, which are subject to change.
+                  securities:
+                    properties:
+                      current_initial: 
+                        type: string
+                        example: "568,360 USD"
+                        description: The minimum amount required to open a new position.
+                      Prdctd Pst-xpry Mrgn @ Opn: 
+                        type: string
+                        example: "0 USD"
+                        description: Provides a projected “at expiration” margin value based on the soon-to-expire contracts in your portfolio. 
+                      current_maint: 
+                        type: string
+                        example: "516,695 USD"
+                        description: The amount of equity required to maintain your positions.
+                      projected_liquidity_inital_margin: 
+                        type: string
+                        example: "568,360 USD"
+                        description: Provides a projected "liquid" initial margin value based on account liquidation value.
+                      Prjctd Lk Ahd Mntnnc Mrgn: 
+                        type: string
+                        example: "516,695 USD"
+                        description: >
+                          If it is 3:00 pm ET, the next calculation you’re looking ahead to is after the close, or the Overnight Initial Margin. If it’s 3:00 am ET, the next calculation will be at the market’s open.
+                           * `Securities` – Projected maintenance margin requirement as of next period’s margin change, in the base currency of the account. 
+                           * `Commodities` – Maintenance margin requirement as of next period’s margin change in the base currency of the account based on current margin requirements, which are subject to change. This value depends on when you are viewing your margin requirements. 
+                      projected_overnight_initial_margin: 
+                        type: string
+                        example: "568,360 USD"
+                        description: >
+                          Overnight refers to the window of time after the local market trading day is closed. 
+                            * Securities – Projected overnight initial margin requirement in the base currency of the account. 
+                            * Commodities – Overnight initial margin requirement in the base currency of the account based on current margin requirements, which are subject to change.
+                      Prjctd Ovrnght Mntnnc Mrgn: 
+                        type: string
+                        example: "516,695 USD"
+                        description: >
+                          Overnight refers to the window of time after the local market trading day is closed. 
+                            * `Securities` – Projected overnight maintenance margin requirement in the base currency of the account. 
+                            * `Commodities` – Overnight maintenance margin requirement in the base currency of the account based on current margin requirements, which are subject to change.
+
+  /iserver/account/{accountId}/summary/market_value:
+    get:
+      tags:
+      - Accounts
+      summary: Summary of Account's Market Value
+      parameters:
+        - in: path
+          name: accountId
+          schema:
+            type: string
+            description: Pass the account identifier to receive information for.
+            example: U1234567
+          required: true
+      responses:
+        '200':
+          description: Indicates a successful market value request.
+          content:
+            application/json:
+              schema:
+                properties:
+                  currency:
+                    type: object
+                    description: Returns an object containing market value details of the currency and positions held using that currency.
+                    properties:
+                      total_cash:
+                        type: string
+                        example: "213,833,399"
+                        description: Lists the total cash held for the given currency.
+                      settled_cash:
+                        type: string
+                        example: "213,833,399"
+                        description: Cash recognized at the time of settlement minus the purchases at time of trade, commissions, taxes, and fees.
+                      MTD Interest:
+                        type: string
+                        example: "812,385"
+                        description: Total Month-to-date interest.
+                      stock:
+                        type: string
+                        example: "1,757,293"
+                        description: Total cash value of stocks held.
+                      options:
+                        type: string
+                        example: "98,351"
+                        description: Total cash value of options held.
+                      futures:
+                        type: string
+                        example: "1,657"
+                        description: Total cash value of futures held.
+                      future_options:
+                        type: string
+                        example: "0"
+                        description: Total cash value of future options held.
+                      funds:
+                        type: string
+                        example: "0"
+                        description: Total cash value of funds held.
+                      dividends_receivable:
+                        type: string
+                        example: "0"
+                        description: Total cash value of receivable dividends.
+                      mutual_funds:
+                        type: string
+                        example: "0"
+                        description: Total cash value of mutual funds held.
+                      money_market:
+                        type: string
+                        example: "0"
+                        description: Total cash value of money market securities held.
+                      bonds:
+                        type: string
+                        example: "0"
+                        description: Total cash value of bonds held.
+                      Govt Bonds:
+                        type: string
+                        example: "0"
+                        description: Total cash value of goverment bonds held.
+                      t_bills:
+                        type: string
+                        example: "0"
+                        description: Total cash value of t-bill bonds held.
+                      warrants:
+                        type: string
+                        example: "0"
+                        description: Total cash value of warrants held.
+                      issuer_option:
+                        type: string
+                        example: "0"
+                        description: Total cash value of issuer options held.
+                      commodity:
+                        type: string
+                        example: "0"
+                        description: Total cash value of commodities held.
+                      Notional CFD:
+                        type: string
+                        example: "0"
+                        description: Total cash value of notional CFDs held.
+                      cfd:
+                        type: string
+                        example: "0"
+                        description: Total cash value of CFDs held.
+                      net_liquidation:
+                        type: string
+                        example: "216,500,885"
+                        description: Total cash value of your net liquidty.
+                      unrealized_pnl:
+                        type: string
+                        example: "-165,482"
+                        description: Total daily unrealized profit and loss.
+                      realized_pnl:
+                        type: string
+                        example: "0"
+                        description: Total daily realized profit and loss.
+                      Exchange Rate:
+                        type: string
+                        example: "1.00"
+                        description: Exchange rate of the labeled currency to the base currency.
+
   /iserver/account/pnl/partitioned:
       get:
         tags:
@@ -2021,6 +2653,45 @@ paths:
                                 description: States whether the contract is hosted in the United States or not.
 
   # FA Allocation Management
+  /iserver/account/allocation/accounts:
+    get:
+      tags:
+        - FA Allocation Management
+      summary: Allocatable Sub-Accounts
+      description: Retrieves a list of all sub-accounts and returns their net liquidity and available equity for advisors to make decisions on what accounts should be allocated and how.
+      responses:
+        '200':
+          description: Indicates data is being returned successfully.
+          content: 
+            application/json:
+              schema:
+                properties:
+                  accounts:
+                    type: array
+                    description: Returns an array containing all sub-accounts held by the advisor.
+                    items:
+                      properties:
+                        data:
+                          type: array
+                          description: Contains Net liquidation and available equity of the given account Id.
+                          items:
+                            properties:
+                              value:
+                                type: string
+                                example: "10"
+                                description: Contains the price value affiliated with the key.
+                              key: 
+                                type: string
+                                enum: [“AvailableEquity”, “NetLiquidation”]
+                                description: >
+                                  Defines the value of the object
+                                   * `AvailableEquity` - Indicates the value relates to the Available Equity held within the account
+                                   * `NetLiquidation` - Indicates the value relates to the Net Liquidation held within the account
+                        name:
+                          type: string
+                          example: "U1234567"
+                          description: Returns the account ID affiliated with the balance data.
+
   /iserver/account/allocation/group:
     get:
       tags:
@@ -2050,6 +2721,7 @@ paths:
                           type: string
                           example: Group_1_NetLiq
                           description: The name set for the given allocation group.
+    
     put:
       tags:
         - FA Allocation Management
@@ -2087,20 +2759,7 @@ paths:
                       - name
                       - amount
                 default_method:
-                  type: string
-                  default: "N"
-                  enum: [A, E, "N", C, P, R, S]
-                  description: >
-                    IB-computed allocation methods:
-                      * `A` - Available Equity
-                      * `E` - Equal
-                      * `N` - Net Liquidation Value
-                    
-                    User-specified allocation methods:
-                      * `C` - Cash Quantity
-                      * `P` - Percentage
-                      * `R` - Ratios
-                      * `S` - Shares
+                  $ref: "#/components/schemas/default_method"
               required:
                 - name
                 - accounts
@@ -2168,20 +2827,7 @@ paths:
                       - name
                       - amount
                 default_method:
-                  type: string
-                  default: "N"
-                  enum: [A, E, "N", C, P, R, S]
-                  description: >
-                    IB-computed allocation methods:
-                      * `A` - Available Equity
-                      * `E` - Equal
-                      * `N` - Net Liquidation Value
-                    
-                    User-specified allocation methods:
-                      * `C` - Cash Quantity
-                      * `P` - Percentage
-                      * `R` - Ratios
-                      * `S` - Shares
+                  $ref: "#/components/schemas/default_method"
               required:
                 - name
                 - accounts
@@ -2220,7 +2866,92 @@ paths:
                   success:
                     type: boolean
 
+  /iserver/account/allocation/group/single:
+    post:
+      tags:
+        - FA Allocation Management
+      summary: Retrieve Single Allocation Group
+      description: Retrieves the configuration of a single account group. This describes the name of the allocation group, the specific accounts contained in the group, and the allocation method in use along with any relevant quantities.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Group_1_NetLiq
+                  description: Name of an existing allocation group.
+              required:
+                - name
+      responses:
+        '200':
+          description: Returns details of the allocation group.
+          content: 
+            application/json:
+              schema:
+                properties:
+                  name:
+                    type: string
+                    example: Group_1_NetLiq
+                    description: Name used to refer to your allocation group. This will be used while placing orders.
+                  accounts:
+                    type: array
+                    description: Contains a series of objects depicting which accounts are involved and, for user-defined allocation methods, the distribution value for each sub-account.
+                    items:
+                      properties:
+                        amount:
+                          type: integer
+                          example: 5
+                          description: The total distribution value for each sub-account for user-defined allocation methods.
+                        name:
+                          type: string
+                          example: "U1234567"
+                          description: The accountId of a given sub-account.
+                  default_method:
+                    $ref: "#/components/schemas/default_method"
+
+  /iserver/account/allocation/presets:
+    get:
+      tags:
+        - FA Allocation Management
+      summary: Retrieve Allocation Presets
+      description: Retrieve the preset behavior for allocation groups for specific events.
+      responses:
+        '200':
+          description: Successfully retrieve preset details
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/presets'
+
+    post:
+      tags:
+        - FA Allocation Management
+      summary: Set the Allocation Presets
+      description: Set the preset behavior for new allocation groups for specific events.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              $ref: '#/components/schemas/presets'
+      responses:
+        '200':
+          description: Successfully retrieve preset details
+          content: 
+            application/json:
+              schema:
+                properties:
+                  success: 
+                    type: boolean
+                    example: true
+                    description: Signifies that the request was successfully submitted. 
+
   # Watchlists
+
   /iserver/watchlist:
     post:
       tags: 
@@ -2593,4 +3324,52 @@ components:
           type: string
           example: Computers
           description: Indicates the industry category of the instrument.
-
+    default_method:
+      type: string
+      default: "N"
+      enum: [A, E, "N", C, P, R, S]
+      description: >
+        Interactive Brokers supports two forms of allocation methods. Allocation methods that have calculations completed by Interactive Brokers, and a set of allocation methods calculated by the user and then specified.
+        IB-computed allocation methods:
+          * `A` - Available Equity
+          * `E` - Equal
+          * `N` - Net Liquidation Value
+        
+        User-specified allocation methods:
+          * `C` - Cash Quantity
+          * `P` - Percentage
+          * `R` - Ratios
+          * `S` - Shares
+    presets:
+      properties:
+        group_auto_close_positions:
+          type: boolean
+          example: true
+          description: Determines if allocation groups should prioritize closing positions over equal distribution.
+        default_method_for_all:
+          type: string
+          enum: ["A", "E", "N", "C", "P", "R", "S"]
+          description: >
+            Interactive Brokers supports two forms of allocation methods. Allocation methods that have calculations completed by Interactive Brokers, and a set of allocation methods calculated by the user and then specified.
+            IB-computed allocation methods:
+              * `A` - Available Equity
+              * `E` - Equal
+              * `N` - Net Liquidation Value
+            
+            User-specified allocation methods:
+              * `C` - Cash Quantity
+              * `P` - Percentage
+              * `R` - Ratios
+              * `S` - Shares
+        profiles_auto_close_positions:
+          type: boolean
+          example: true
+          description: Determines if allocation profiles should prioritize closing positions over equal distribution.
+        strict_credit_check:
+          type: boolean
+          example: true
+          description: Determines if the system should always check user credit before beginning the order process every time, or only at the time of order placement and execution.
+        group_proportional_allocation:
+          type: boolean
+          example: true
+          description: Determines if the system should keep allocation groups proportional for scaling.
